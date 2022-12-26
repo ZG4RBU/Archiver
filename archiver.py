@@ -5,9 +5,9 @@ from colorama import init, Fore, Style
 init(autoreset=True)
 from configparser import ConfigParser
 from pytube import YouTube,Playlist,Channel
-from mega import mega_upload
-from scrape_youtube import scrape,add_comments
-from htmls import ending
+from modules.mega import mega_upload
+from modules.scrape_youtube import scrape,add_comments
+from modules.htmls import ending
 
 
 config = ConfigParser()
