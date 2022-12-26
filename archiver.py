@@ -10,14 +10,15 @@ from modules.scrape_youtube import scrape,add_comments
 from modules.htmls import ending
 
 
-config = ConfigParser()
-config.read('Settings.ini')
+class settings:
+    config = ConfigParser()
+    config.read('Settings.ini')
 
-login = config.get('mega_auth', 'login')
-password = config.get('mega_auth', 'password')
-save_comments = config.get('youtube', 'save_comments')
-delay = config.getint('delay', 'seconds')
-headless = config.get('extra', 'headless')
+    login = config.get('mega_auth', 'login')
+    password = config.get('mega_auth', 'password')
+    save_comments = config.get('youtube', 'save_comments')
+    delay = config.getint('delay', 'seconds')
+    headless = config.get('extra', 'headless')
 
 
 def on_complete(stream, filepath):
@@ -68,7 +69,7 @@ def download_yt_videos(yt_links:list):
     
     path = "upload"
     
-    #remove folder to avoid link and video mismatch in line #102 zip func
+    #remove folder to avoid link and video mismatch in parse_to_html() zip for loop
     if os.path.exists(path):
         rmtree(path)
 
@@ -108,7 +109,7 @@ def parse_to_html(yt_links:list,mega_links:list):
         output = open("./yt_html_export/"+video_object.title+".html", 'wt', encoding="utf8")
 
         #scrape more info
-        subscribers,like_count,profile_image,comments_count = scrape(yt_link,delay,headless)
+        subscribers,like_count,profile_image,comments_count = scrape(yt_link,settings.delay,settings.headless)
 
         for line in input:
             output.write(line.replace('REPLACE_TITLE', f'{video_object.title}')
@@ -128,8 +129,8 @@ def parse_to_html(yt_links:list,mega_links:list):
 
                             .replace('VIDEO_SOURCE', f'{mega_link}'))
 
-        if save_comments == 'True':
-            add_comments(yt_link,profile_image,output,delay,headless)
+        if settings.save_comments == 'True':
+            add_comments(yt_link,profile_image,output,settings.delay,settings.headless)
 
         output.write(ending.html_end)
 
@@ -146,9 +147,10 @@ if __name__ == '__main__':
     download_yt_videos(yt_links)
     
     #upload to mega
-    mega_links = mega_upload(login,password,delay,headless)
+    mega_links = mega_upload(settings.login,settings.password,settings.delay,settings.headless)
     print(Fore.GREEN + Style.BRIGHT + 'files uploaded to mega...')
     
+    #parse to html
     parse_to_html(yt_links,mega_links)
 
     input(Fore.GREEN + Style.BRIGHT + '\nfinished ...')
