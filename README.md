@@ -13,16 +13,20 @@ Save youtube videos offline as html file. Archiver can also be used as OSINT too
 2. run requirements.cmd
 3. go to [chrome://settings/help](chrome://settings/help) in chrome and update browser to the latest version
 4. modify "Settings.ini" file
-5. finally run start.cmd or run `python archiver.py` in terminal
 
 ## Settings
 `mega_auth` > enter your mega account login info
 
-`youtube` > `save_comments` > enter True/false
+`youtube > save_comments` > enter True/false
 
 `delay` > delay per action
 
-`extra` > `headless` > run chrome as background process. enter True/false
+`extra > headless` > run chrome as background process. enter True/false
+
+## Usage
+run start.cmd or run `python archiver.py` in terminal. 
+html output will be saved in `yt_html_export` folder.
+when moving html file outside the folder make sure to copy css and assets folder as well.
 
 ## Task list
 - [ ] Add delight to the experience when all tasks are complete
