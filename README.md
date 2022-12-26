@@ -43,4 +43,4 @@ python3 archiver.py
 - [ ] Add delight to the experience when all tasks are complete
 
 ## Credits
-me on discord @`zg4rbu#8684`
+For help contact @`zg4rbu#8684` (Discord)
