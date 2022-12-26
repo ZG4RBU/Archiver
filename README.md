@@ -11,7 +11,7 @@ Save youtube videos offline as html file. Archiver can also be used as OSINT too
 ## Setup
 1. download code
 2. run requirements.cmd
-3. go to [chrome://settings/help](chrome://settings/help) in chrome and update browser to the latest version
+3. go to [chrome settings](chrome://settings/help) in chrome and update browser to the latest version
 4. modify "Settings.ini" file
 
 ## Settings
