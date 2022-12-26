@@ -24,7 +24,7 @@ Save youtube videos offline as html file. Archiver can also be used as OSINT too
 `extra > headless` > run chrome as background process. enter True/false
 
 ## Usage
-run start.cmd or run the command in terminal
+run `start.cmd` or run the command in terminal
 ```
 python3 archiver.py
 ``` 
