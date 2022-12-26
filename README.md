@@ -39,8 +39,8 @@ python3 archiver.py
 - html output will be saved in `yt_html_export` folder.
 - when moving html file outside the folder make sure to copy css and assets folder as well.
 
-## Acknowledgments
-
-
 ## Task list
 - [ ] Add delight to the experience when all tasks are complete
+
+## Credits
+me on discord @`zg4rbu#8684`
