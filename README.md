@@ -1,7 +1,7 @@
 # Archiver
 Save youtube videos offline as html file. Archiver can also be used as OSINT tool to better visualize the saved contents.
 
-![archiver_thumbnail](https://i.imgur.com/xV320qr.png)
+![archiver_thumbnail](https://i.imgur.com/4PjU7B2.png)
 
 ## Prerequisites
 1. Python 3.6+
