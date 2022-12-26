@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Oswald" />
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet' />
+
+    <title>
+      REPLACE_TITLE
+    </title>
+    
+    <link rel="shortcut icon" href="assets/icons/youtube.png" type="image/x-icon">
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+
+  <body tranlate="no">
+    <nav>
+      <div class="icons-cont">
+        <button class="menu-icon-button">
+          <i class='bx bx-menu'></i>
+        </button>
+        
+        <div class="yt-icon-cont">
+          <img src="assets/icons/youtube.png" title="YouTube" class="yt-icon" />
+          <span class="yt-icon-text">YouTube</span>
+            
+          
+        </div>
+      </div>
+
+      <div class="nav-search-bar">
+        <input class="search-bar" type="text" placeholder="Search" />
+        <button class="nav-search-button" id="nav-search-button"><i class='bx bx-search'></i></button>
+        <button class="nav-mic-button" id="nav-mic-button"><i class='bx bxs-microphone'></i></button>
+      </div>
+
+      <div class="user-tools-cont">
+        <button class="camera-icon-button"><i class='bx bx-video'></i></button>
+        <button class="aplication-icon-button"><i class='bx bxs-grid'></i></button>
+        <button class="bell-icon-button"><i class='bx bx-bell'></i></button>
+
+        <img src="assets/icons/profile.png" alt="user-icon" class="user-profile-icon" />
+      </div>
+
+    </nav>
+
+
+    <main>
+
+      <!-- Main video section -->
+      <article class="left-main-section" >
+        <section class="main-video-section">
+          <div class="container">
+            <iframe width="930" height="510" frameborder="0" src="VIDEO_SOURCE" allowfullscreen allow="autoplay;"></iframe>
+          </div>
+
+          <h1 class="main-video-title">
+            <a href="TITLE_URL" style="color:white;">REPLACE_TITLE</a>
+          </h1>
+
+          <div class="more-info-cont">
+            <span class="views">NUMBER_OF_VIEWS views <span class="departure-date">• Uploaded on PUBLISH_DATE</span></span>
+
+            <div class="buttons-zone">
+
+              <button class="action-button">
+                <i class='bx bx-like like-icon'></i>
+                <span>LIKE_COUNT</span>
+              </button>
+
+              <button class="action-button">
+                <i class='bx bx-dislike'></i>
+                <span>DISLIKE</span>
+              </button>
+
+              <button class="action-button">
+                <i class='bx bx-share bx-flip-horizontal'></i>
+                <span>SHARE</span>
+              </button>
+
+              <button class="action-button">
+                <i class='bx bx-list-plus'></i>
+                <span>SAVE</span>
+              </button>
+
+              <button class="action-button">
+                <i class='bx bx-dots-horizontal-rounded'></i>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Video description section -->
+        <section class="description-section">
+          <div class="subscribe-div">
+
+            <div class="author-div">
+              <a href="CHANNEL_URL"><div class="author-image"><img src="PROFILE_IMAGE_LINK" alt="Avatar"></div></a>
+
+              <div class="author">
+                <a href="CHANNEL_URL"><h3>CHANNEL_AUTHOR</h3></a>
+                <p>CHANNEL_SUBSCRIBERS</p>
+              </div>
+            </div>
+
+            <button class="subscribe">SUBSCRIBE</button>
+          </div>
+
+          <div class="video-description">
+            <ul>
+              <desc>
+CHANNEL_DESCRIPTION
+              </desc>
+
+              <tags>       
+CHANNEL_KEYWORDS
+              </tags>
+            </ul>
+            <p>SHOW MORE</p>
+          </div>
+        </section>
+      </article>
+
+      <!-- Comments section -->
+      <section class="comments-section">
+        <div class="top-section">
+          <div class="total-comments">
+            <span>COMMENTS_COUNT</span>
+          </div>
+
+          <button class="sort-by">
+            <i class='bx bx-sort-down sort-icon'></i>
+            <span>SORT BY</span>
+          </button>
+        </div>
+
+        <div class="comment-input-div">
+          <img src="assets/icons/profile.png" class="user-icons" />
+          <input
+            type="text"
+            name="comment"
+            id="comment"
+            placeholder="Add a public comment..."
+          />
+        </div>
+
+        <section class="users-comment-section">
+

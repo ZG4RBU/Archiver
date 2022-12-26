@@ -1,0 +1,743 @@
+:root {
+  --Dark-gray: #181818;
+  --Gray: #202020;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--Dark-gray);
+  font-family: "Roboto", sans-serif;
+  color: #FFF;
+  font-size: 16px;
+}
+
+a {
+  text-decoration: none;
+  color: initial;
+}
+
+li {
+  list-style: none;
+}
+
+button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+i {
+  color: #FFF;
+  font-size: 24px;
+}
+
+
+/*Navbar*/
+nav {
+  background-color: var(--Gray);
+
+  width: 100%;
+  height: 56px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  position: fixed;
+  top: 0;
+
+  z-index: 1;
+}
+
+.icons-cont {
+  display: flex;
+  align-items: center;
+}
+
+.menu-icon-button {
+  border-radius: 50%;
+  text-align: center;
+
+  margin: 0 4px 0 12px;
+}
+
+.menu-icon-button i {
+  font-size: 28px;
+  
+  padding: 5px;
+}
+
+.yt-icon-cont {
+  padding: 0 16px;
+  margin: 0 20px 0 0;
+
+  display: flex;
+  align-items: center;
+}
+
+.yt-icon {
+  width: 30px;
+
+  margin: 0 2px 0 0;
+}
+
+.yt-icon-text {
+  font-size: 20px;
+  font-family: "Oswald", sans-serif;
+}
+
+.nav-search-bar {
+  width: 52%;
+
+  display: flex;
+  align-items: center;
+}
+
+.search-bar {
+  background: #121212;
+  border-radius: 2px 0 0 2px;
+  border: 1px solid #303030;
+  color: #ffffffe0;
+  font-size: 16px;
+  outline: transparent;
+
+  width: 85%;
+  height: 40px;
+
+  padding: 2px 10px;
+}
+
+.search-bar:focus {
+  outline: 1px thin #3ea6ff; /* I don't know how you did this, maybe you could redo it? */
+}
+
+.nav-search-button {
+  color: #ffffff14;
+}
+
+.nav-mic-button {
+  background: #121212;
+  
+  border-radius: 50%;
+  margin: 0 8px;
+}
+
+.nav-mic-button i {
+  font-size: 20px;
+  padding: 10px;
+}
+
+.nav-search-bar .nav-search-button {
+  background: #303030;
+  width: 64px;
+  height: 40px;
+}
+
+.user-tools-cont {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.user-tools-cont * {
+  margin: 0 6px;
+}
+
+.user-profile-icon {
+  border-radius: 50%;
+  width: 32px;
+  margin: 0 25px 0 10px;
+}
+
+
+/* Main content */
+main {
+  padding: 75px 25px 0 25px;
+
+  display: grid;
+  grid-template-areas: 
+    "main-video recommended-videos"
+    "comments recommended-videos"
+  ;
+}
+
+
+/* Video, comments, description section (Left section) */
+.left-main-section {
+  grid-area: main-video;
+  width: 63vw;
+  margin: 0 20px 0 0;
+}
+
+.main-video-section {
+  border-bottom: 1px solid #323232;
+
+  margin: 0 auto;
+}
+
+#main-video {
+  width: 100%;
+  height: 480px;
+  min-width: 600px;
+}
+
+.main-video-title {
+  font-weight: 400;
+  padding-top: 20px;
+}
+
+.more-info-cont {
+  padding: 15px 0 20px 0;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.views {
+  color: #aaaaaa;
+  font-size: 14px;
+  font-weight: 200;
+}
+
+.buttons-zone {
+  width: 60%;
+
+  display: flex;
+  justify-content: space-around;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+}
+
+.action-button * {
+  color: #FFF;
+}
+
+.action-button i {
+  margin: 0 5px 0 0;
+}
+
+
+/* Main video description div */
+.description-section {
+  border-bottom: 1px solid #323232;
+}
+
+.subscribe-div {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0 0 0;
+}
+
+.author {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.author a {
+  color: #FFF;
+  text-decoration: none;
+}
+
+.author-div {
+  display: flex;
+  gap: 15px;
+}
+
+.author-div h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.author-div p {
+  font-size: 12px;
+  color: #aaaaaa;
+}
+
+.author-image {
+  background-color: darkorchid;
+  border-radius: 50%;
+
+  width: 48px;
+  height: 48px;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.author-div a {
+  color: #FFF;
+  text-decoration: none;
+}
+
+.subscribe {
+  background-color: #cc0000;
+  color: #FFF;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 2px;
+
+  width: 120px;
+  height: 36px;
+
+  margin: 0 20px;
+}
+
+.video-description a {
+  color: #3ea6ff;
+  text-decoration: none;
+}
+
+.video-description ul {
+  font-size: 14px;
+  color: white;
+
+  margin: 10px 0 0 0;
+
+  display: flex;
+  flex-direction: column;
+  white-space: pre-wrap;
+  margin-left: 57px;
+  margin-right: 180px;
+}
+
+.video-description desc {
+  list-style-type: disc;
+  text-indent: -6px;
+  line-height: 20px;
+  
+}
+
+.video-description tags {
+  list-style-type: disc;
+  text-indent: -6px;
+  line-height: 20px;
+  color: #3ea6ff;
+  
+}
+
+.video-description p {
+  font-size: 12px;
+  color: #aaaaaa;
+  margin-top: 10px;
+  margin-left: 65px;
+  padding-bottom: 20px;
+}
+
+.channel-owner-reaction {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  margin-right: -15px;
+}
+.channel-owner-reaction img {
+  border-radius: 100px;
+  width: 16px;
+  height: 16px;
+}
+.heart-reaction-icon{
+  width: 14px;
+  position: relative;
+  right: 16.7px;
+  top: 6px;
+  z-index: 1;
+}
+.heart-reaction-border{
+  width: 16px;
+  height: 20px;
+  position: relative;
+  right: 6.5px;
+  top: 5.2px;
+  z-index: 0;
+}
+.heart-icon{
+  fill: red;
+  width: 13px;
+}
+.heart-icon-border {
+  fill: white;
+}
+
+/* Recommended videos section (Right section) */
+.right-main-section {
+  grid-area: recommended-videos;
+}
+
+.chat-section {
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 10px 0;
+}
+
+.chat-button {
+  background-color: #202020;
+  border: 1px solid #323232;
+  font-size: 11px;
+  color: #FFF;
+
+  height: 29px;
+
+  margin: 0 0 15px 0;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-label-cont {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.button-label {
+  background-color: #2b2a2a;
+  border-radius: 25px;
+  outline: thin solid #464545;
+  color: white;
+  font-size: 14px;
+  
+  height: 32px;
+
+  padding: 0px 15px;
+  
+  display: flex;
+  align-items: center;
+}
+
+.button-label:hover {
+  background: #3d3c3c;
+}
+
+#selected-item {
+  background: #FFF;
+  color: black;
+  outline: none;
+}
+
+.recommended-video {
+  width: 100%;
+  height: 94px;
+
+  margin: 8px 0px;
+
+  display: flex;
+  align-items: center;
+}
+
+.miniature {
+  background: #000;
+
+  width: 168px;
+  height: 100%;
+
+  margin: 0 8px 0 0;
+
+  display: flex;
+  justify-content: center;
+}
+
+.miniature img {
+  width: 100%;
+}
+
+img {
+  border-radius: 50%;
+}
+
+.video-info {
+  width: 50%;
+  height: 100%;
+}
+
+.miniature-title {
+  font-size: 14px;
+  color: #FFF;
+  font-weight: 500;
+  margin: 0 0 5px 0;
+}
+
+.miniature-info {
+  color: #aaaaaa;
+  font-size: 12px;
+  margin: 2px 0;
+}
+
+.miniature-info:nth-child(1) {
+  font-size: 14px;
+}
+
+
+/*Comments section*/
+.comments-section {
+  width: 60vw;
+  grid-area: comments;
+}
+
+.comments-section a {
+  color: #FFF;
+  text-decoration: none;
+}
+
+.top-section {
+  display: flex;
+  gap: 15px;
+  padding-top: 25px;
+}
+
+.total-comments {
+  width: 122px;
+}
+
+.total-comments span {
+  font-weight: normal;
+}
+
+.sort-by {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sort-by span {
+  color: #FFF;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.comment-input-div {
+  height: 40px;
+  
+  padding: 25px 0 0 0;
+  display: flex;
+}
+
+#comment {
+  background-color: #181818;
+  border: none;
+  border-bottom: 1px solid #323232;
+  font-size: 14px;
+  color: #FFF;
+
+  width: 100%;
+  height: 25px;
+
+  padding: 10px 0;
+  margin: 0 0 20px 20px;
+
+  transition: padding .2s ease;
+}
+
+#comment:focus {
+  padding: 15px 0;
+  outline: none;
+  border-bottom: 2px solid white;
+}
+
+
+/*User comments*/
+.users-comment-section {
+  margin-top: 60px;
+}
+
+.comment {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.user {
+  display: flex;
+  flex-direction: column;
+  line-height: 24px;
+  margin-left: 20px;
+}
+
+.user-name,
+.comment-text {
+  font-weight: normal;
+  letter-spacing: 1px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.date {
+  font-size: 13px;
+  font-weight: 560;
+  color: #aaa;
+  margin-left: 5px;
+}
+
+.comment-text {
+  font-size: 14px;
+}
+
+.user-comments-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.like { 
+  font-size: 12px;
+  color: #aaaaaa;
+  margin: 0 10px 0 5px;
+}
+
+.reply {
+  font-size: 12px;
+  color: #aaaaaa;
+  letter-spacing: 1px;
+  margin: 0 0 0 10px;
+}
+
+.icon {
+  color: #FFF;
+  font-size: 18px;
+}
+
+.view-replies {
+  width: fit-content;
+}
+
+.view-replies span {
+  margin: 0 0 0 5px;
+  font-weight: normal;
+}
+
+.view-replies span,
+.reply-icon {
+  font-size: 14px;
+  color: #3ea6ff;
+}
+
+
+/*User icon profiles*/
+.user-icons {
+  border-radius: 50%;
+
+  width: 40px;
+  height: 40px;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.user-icon1 {
+  background-color: #04d304;
+}
+
+.user-icon2 {
+  background-color: #ff1493;
+}
+
+.user-icon3 {
+  background-color: #02a5a5;
+}
+
+
+
+@media only screen and (max-width: 1200px) {
+  main {
+    padding: 70px 10px 0 10px;
+
+    display: grid;
+    grid-template-areas: 
+      "main-video"
+      "recommended-videos"
+      "comments"
+    ;
+  }
+
+  .left-main-section, .right-main-section, .comments-section {
+    width: 100%;
+  }
+
+  #main-video {
+    min-width: 800px;
+  }
+
+  .departure-date {
+    display: none;
+  }
+
+  .buttons-zone {
+    width: 80%;
+  }
+
+}
+
+@media only screen and (max-width: 600px) {
+  main {
+    padding: 70px 5px 0 5px;
+  }
+
+  .search-bar {
+    display: none;
+  }
+
+  .nav-search-bar {
+    justify-content: flex-end;
+  }
+
+  #nav-search-button {
+    background: transparent;
+    width: fit-content;
+  }
+
+  .menu-icon-button {
+    margin: 0 2px 0 1px;
+  }
+
+  .yt-icon-cont {
+    padding: 0 4px;
+  }
+
+  #nav-mic-button {
+    background: transparent;
+    margin: 0;
+  }
+
+  #main-video {
+    height: 300px;
+    min-width: 200px;
+  }
+
+  .yt-icon-text {
+    display: none;
+  }
+
+  .user-tools-cont * {
+    margin: 0 2px;
+  }
+
+  .user-profile-icon {
+    margin: 0 5px 0 2px;
+  }
+  
+  .views {
+    display: none;
+  }
+
+  .more-info-cont {
+    justify-content: center;
+  }
+
+  .action-button {
+    margin: 0 8px;
+  }
+}
