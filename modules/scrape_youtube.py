@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from time import sleep
-import htmls
+import modules.htmls as htmls
 
 
 
