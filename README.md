@@ -1,7 +1,11 @@
 # Archiver
-Save youtube videos offline as html file. Archiver can also be used as OSINT tool to better visualize the saved contents.
+Save youtube videos offline as html files.
 
-![This is an image](https://myoctocat.com/assets/images/base-octocat.svg)
+![archiver_thumbnail](https://i.imgur.com/4PjU7B2.png)
+
+## Use Cases
+- download youtube videos that may get deleted later, in my case its music videos.
+- Archiver can also be used as an OSINT tool to visualize gathered info better.
 
 ## Prerequisites
 1. Python 3.6+
@@ -24,7 +28,7 @@ Save youtube videos offline as html file. Archiver can also be used as OSINT too
 `extra > headless` > run chrome as background process. enter True/false
 
 ## Usage
-run start.cmd or run the command in terminal
+run `start.cmd` or run the command in terminal
 ```
 python3 archiver.py
 ``` 
