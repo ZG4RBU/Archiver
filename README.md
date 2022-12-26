@@ -8,6 +8,9 @@ Download an [example](https://mega.nz/file/pTNiwSxT#9wcvhHxYaoEhYMyMv9Ny5honlbdB
 - download youtube videos that may get deleted later, in my case its music videos.
 - Archiver can also be used as an OSINT tool to visualize gathered info better.
 
+## How it works
+Archiver is heavily dependent on selenium and pytube modules. Firstly, the youtube videos are downloaded locally and uploaded on mega.nz. After the downloads finish, mega.nz link and youtube link content are parsed to html blocks, from which the html file is built.
+
 ## Prerequisites
 1. Python 3.6+
 2. Google Chrome
@@ -35,6 +38,9 @@ python3 archiver.py
 ``` 
 - html output will be saved in `yt_html_export` folder.
 - when moving html file outside the folder make sure to copy css and assets folder as well.
+
+## Acknowledgments
+
 
 ## Task list
 - [ ] Add delight to the experience when all tasks are complete
