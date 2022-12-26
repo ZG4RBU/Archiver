@@ -24,9 +24,12 @@ Save youtube videos offline as html file. Archiver can also be used as OSINT too
 `extra > headless` > run chrome as background process. enter True/false
 
 ## Usage
-run start.cmd or run ```python archiver.py``` in terminal. 
-html output will be saved in `yt_html_export` folder.
-when moving html file outside the folder make sure to copy css and assets folder as well.
+run start.cmd or run the command in terminal
+```
+python archiver.py
+``` 
+- html output will be saved in `yt_html_export` folder.
+- when moving html file outside the folder make sure to copy css and assets folder as well.
 
 ## Task list
 - [ ] Add delight to the experience when all tasks are complete
