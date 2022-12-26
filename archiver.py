@@ -8,7 +8,7 @@ from pytube import YouTube,Playlist,Channel
 from mega import mega_upload
 from scrape_youtube import scrape,add_comments
 from htmls import ending
-#rashvebi
+
 
 config = ConfigParser()
 config.read('Settings.ini')
