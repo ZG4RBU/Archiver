@@ -1,5 +1,5 @@
 # Archiver
-Save youtube videos offline as html file. Archiver can also be used as OSINT tool to better visualize saved contents
+Save youtube videos offline as html file. Archiver can also be used as OSINT tool to better visualize the saved contents.
 
 ![This is an image](https://myoctocat.com/assets/images/base-octocat.svg)
 
