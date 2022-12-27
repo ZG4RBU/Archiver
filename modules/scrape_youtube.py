@@ -14,10 +14,11 @@ def chrome_setup(implicit_wait:int,headless:str):
     options.add_argument("--start-maximized")
     options.add_argument("--mute-audio")
     options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
-    
+
     if headless == "True":
         options.add_argument("--headless")
         options.add_argument('--disable-gpu')
+        options.add_argument("--window-size=1920x1080")
 
     s = Service('driver/chromedriver.exe')
     driver = webdriver.Chrome(options=options,service=s)
@@ -71,22 +72,22 @@ def scrape(link:str,delay:int,headless:str):
 
     profile_image = driver.find_element(By.XPATH, '//yt-img-shadow[@id="avatar"]/img').get_attribute("src")
     profile_image = "".join(profile_image.replace("s88-c-k", "s48-c-k")) #make profile img size 48x48
-    
+
     try:
         comments_count = driver.find_element(By.XPATH, '//h2[@id="count"]//span[1]').text
         comments_count += ' Comments'
     except:
         comments_count = "Comments are turned off."
-    
+
     driver.quit()
-    
-    return subscribers,like_count,profile_image,comments_count;  
+
+    return subscribers,like_count,profile_image,comments_count;
 
 
 def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
 
     driver = chrome_setup(implicit_wait=delay+2,headless=headless)
-    
+
     driver.get(link)
     slow_croll(driver,delay) #scroll to description section 
     scroll_to_bottom(driver,delay)
@@ -99,27 +100,27 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
 
             if element.find_element(By.XPATH, './/*[@id="more"]').is_displayed():
                 element.find_element(By.XPATH, './/*[@id="more"]').click()
-            
+
             #insert emojis in text
             emojis_imgs = element.find_elements(By.XPATH, './/yt-formatted-string[@id="content-text"]/img')
             for emoji_img in emojis_imgs:
                 emoji = emoji_img.get_attribute('alt')
                 driver.execute_script("arguments[0].innerHTML = arguments[1];", emoji_img, emoji)
-            
+
             text = element.find_element(By.XPATH, './/yt-formatted-string[@id="content-text"]').text
-            
+
             like_count = element.find_element(By.XPATH, './/*[@id="vote-count-middle"]').text
-            
-            #split comment header to username/date
-            header = element.find_element(By.XPATH, './/div[@id="main"]//div[1]').text
-            channel_username = header.split("\n")[0]
-            comment_date = header.split("\n")[1]
-            
+
+            channel_username = element.find_element(By.XPATH, './/yt-img-shadow//*[@id="img"]').get_attribute('alt')
+
+            comment_date = element.find_element(By.XPATH, './/div[@id="main"]//div[1]').text
+            comment_date = comment_date.split("\n")[1]
+
             channel_url = element.find_element(By.XPATH, './/div[@id="main"]//div[1]//a').get_attribute('href')
-            
-            channel_pfp = str(element.find_element(By.XPATH, './/yt-img-shadow//*[@id="img"]').get_attribute('src'))
+
+            channel_pfp = element.find_element(By.XPATH, './/yt-img-shadow//*[@id="img"]').get_attribute('src')
             channel_pfp = channel_pfp.replace("s88-c-k", "s48-c-k")
-            
+
             heart = element.find_element(By.XPATH, './/*[@id="creator-heart"]')
             if heart.is_displayed():
                 heart = htmls.heart(profile_image)
@@ -141,7 +142,7 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
                     reply_count = reply_count.text
                   
                 more_replies_toggle = htmls.more_replies_toggle(reply_count)
-                
+
                 #add comment
                 comment_box += more_replies_toggle + divs
                 output.write(comment_box)
@@ -151,7 +152,7 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
                 element.find_element(By.XPATH, './/*[@id="more-replies"]').click()
 
                 for reply in element.find_elements(By.XPATH, './/*[@id="replies"]//*[@id="expander-contents"]//ytd-comment-renderer'):
-                    
+
                     driver.execute_script("arguments[0].scrollIntoView();", reply) #slow scroll replies
 
                     #get text
@@ -160,24 +161,24 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
                         emoji = emoji_img.get_attribute('alt')
                         driver.execute_script("arguments[0].innerHTML = arguments[1];", emoji_img, emoji)
                     text = reply.find_element(By.XPATH, './/yt-formatted-string[@id="content-text"]').text
-                    
+
                     like_count = reply.find_element(By.XPATH, './/*[@id="vote-count-middle"]').text
-                    
-                    #split comment head to username/date
-                    header = reply.find_element(By.XPATH, './/div[@id="main"]//div[1]').text
-                    channel_username = header.split("\n")[0]
-                    comment_date = header.split("\n")[1]
-                    
+
+                    channel_username = reply.find_element(By.XPATH, './/yt-img-shadow//*[@id="img"]').get_attribute('alt')
+
+                    comment_date = reply.find_element(By.XPATH, './/div[@id="main"]//div[1]').text
+                    comment_date = comment_date.split("\n")[1]
+
                     channel_url = reply.find_element(By.XPATH, './/div[@id="main"]//div[1]//a').get_attribute('href')
-                    
+
                     channel_pfp = reply.find_element(By.XPATH, './/yt-img-shadow//*[@id="img"]').get_attribute('src')
                     channel_pfp = channel_pfp.replace("s88-c-k", "s48-c-k")
-                    
+
                     heart = reply.find_element(By.XPATH, './/*[@id="creator-heart"]')
                     if heart.is_displayed():
                         heart = htmls.heart(profile_image)
                     else: heart=""
-                    
+
                     #add reply
                     reply_box = htmls.reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
                     output.write(reply_box) 
@@ -185,7 +186,5 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
     except NoSuchElementException as e:
         print(f"No Such Element...{e}")
         pass
-  
+
     driver.quit()
-
-
