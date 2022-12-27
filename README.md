@@ -1,6 +1,6 @@
 # Archiver
 Save youtube videos offline as html files.  
-Download an [example](https://mega.nz/file/pTNiwSxT#9wcvhHxYaoEhYMyMv9Ny5honlbdBqppOekpQ0zdDoNs) 
+Download an [example](https://mega.nz/file/sbUGzCDS#HC_x1rCr22RRaNQSQWfZXh7Jd8BBIVJhSWycEgRvRAo)
 
 ![archiver_thumbnail](https://i.imgur.com/4PjU7B2.png)
 
