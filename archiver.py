@@ -141,15 +141,15 @@ def parse_to_html(yt_links:list,mega_links:list):
 
 
 if __name__ == '__main__':
-    
+
     #download yt videos
     yt_links = input_youtube_links()
     download_yt_videos(yt_links)
-    
+
     #upload to mega
     mega_links = mega_upload(settings.login,settings.password,settings.delay,settings.headless)
     print(Fore.GREEN + Style.BRIGHT + 'files uploaded to mega...')
-    
+
     #parse to html
     parse_to_html(yt_links,mega_links)
 
