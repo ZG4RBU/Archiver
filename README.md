@@ -9,7 +9,7 @@ Download an [example](https://mega.nz/file/sbUGzCDS#HC_x1rCr22RRaNQSQWfZXh7Jd8BB
 - Archiver can also be used as an OSINT tool to visualize gathered info better.
 
 ## How it works
-Archiver is heavily dependent on selenium and pytube modules. Firstly, the youtube videos are downloaded locally and uploaded on mega.nz. After the downloads finish, mega.nz link and youtube link content are parsed to html blocks, from which the html file is built.
+Archiver is heavily dependent on selenium and pytube modules. Firstly, the youtube videos are downloaded locally and uploaded on mega.nz. After the downloads finish, mega.nz video embed link and youtube video content are parsed to html blocks, from which the html file is built.
 
 ## Prerequisites
 1. Python 3.6+
@@ -43,6 +43,6 @@ python3 archiver.py
 - [ ] Add delight to the experience when all tasks are complete
 
 ## Credits
-thanks @virag-ky for this awesome https://github.com/virag-ky/Youtube-Clone html/css  
+thanks @virag-ky for [this](https://github.com/virag-ky/Youtube-Clone) awesome html/css  
 
 For help contact @`zg4rbu#8684` (Discord)
