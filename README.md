@@ -36,7 +36,7 @@ run `start.cmd` or run the command in terminal
 ```
 python3 archiver.py
 ``` 
-- html output will be saved in `yt_html_export` folder.
+- html output is saved in `yt_html_export` folder.
 - when moving html file outside the folder make sure to copy css and assets folder as well.
 
 ## Task list
