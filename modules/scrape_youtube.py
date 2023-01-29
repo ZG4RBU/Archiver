@@ -86,7 +86,7 @@ def scrape(link:str,delay:int,headless:str):
     return subscribers,like_count,profile_image,comments_count;
 
 
-def comment_elements(html:HTMLParser):
+def parse_comments(html:HTMLParser):
 
     text = html.css_first('yt-formatted-string[id="content-text"]').text()
 
@@ -128,7 +128,7 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
                 driver.execute_script("arguments[0].innerHTML = arguments[1];", emoji_img, emoji)
 
             html = HTMLParser(element.get_attribute("innerHTML"))
-            text,like_count,channel_username,comment_date,channel_url,channel_pfp = comment_elements(html)
+            text,like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html)
 
             heart = element.find_element(By.XPATH, './/*[@id="creator-heart"]')
             if heart.is_displayed():
@@ -167,7 +167,7 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
                     driver.execute_script("arguments[0].scrollIntoView();", reply) #slow scroll replies
 
                     html = HTMLParser(reply.get_attribute("innerHTML"))
-                    text,like_count,channel_username,comment_date,channel_url,channel_pfp = comment_elements(html)
+                    text,like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html)
 
                     heart = reply.find_element(By.XPATH, './/*[@id="creator-heart"]')
                     if heart.is_displayed():

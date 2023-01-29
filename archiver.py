@@ -32,6 +32,15 @@ def on_progress(stream, chunk, bytes_remaining):
 def clear():
     os.system('cls' if os.name=='nt' else 'clear')
 
+def del_special_chars(filename:str) -> str:
+    """Windows doesn't allow these special characters in file names. This function removes the characters in order to avoid exception and save files locally on windows."""
+    
+    special_chars = ["/","\\",":","*","?",'"',"<",">","|"]
+
+    for char in special_chars:
+        if char in filename:
+            filename = filename.replace(char, "")
+    return filename
 
 
 def input_youtube_links() -> list:
@@ -69,7 +78,7 @@ def download_yt_videos(yt_links:list):
     
     path = "upload"
     
-    #remove folder to avoid link and video mismatch in parse_to_html() zip for loop
+    #remove folder to avoid link and video mismatch in parse_to_html() zip func
     if os.path.exists(path):
         rmtree(path)
 
@@ -98,12 +107,7 @@ def parse_to_html(yt_links:list,mega_links:list):
         keywords = ['#'+i for i in video_object.keywords]
         keywords = ' '.join(keywords)
 
-
-        #remove special chars in video title to save file locally
-        special_chars = ["/","\\",":","*","?",'"',"<",">","|"]
-        for char in special_chars:
-            if char in video_object.title:
-                video_object.title=video_object.title.replace(char, "")
+        video_object.title = del_special_chars(video_object.title)
 
         input = open("./yt_html_export/index.html", 'rt', encoding="utf8")
         output = open("./yt_html_export/"+video_object.title+".html", 'wt', encoding="utf8")
@@ -146,11 +150,11 @@ if __name__ == '__main__':
     yt_links = input_youtube_links()
     download_yt_videos(yt_links)
 
-    #upload to mega
+    #upload yt videos on mega.io and return embed links 
     mega_links = mega_upload(settings.login,settings.password,settings.delay,settings.headless)
     print(Fore.GREEN + Style.BRIGHT + 'files uploaded to mega...')
-
-    #parse to html
+    
+    #main func
     parse_to_html(yt_links,mega_links)
 
     input(Fore.GREEN + Style.BRIGHT + '\nfinished ...')
