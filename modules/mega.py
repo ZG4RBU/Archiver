@@ -68,6 +68,12 @@ def mega_upload(login:str,password:str,delay:int,headless:str) -> list:
             act=ActionChains(driver)
             act.move_to_element(COLUMN).click().perform()
             driver.find_element(By.XPATH, "//button[@data-simpletip='Get link']").click()
+            #click agree
+            try:
+                driver.find_element(By.XPATH, "//div[@aria-labelledby='copyrights-dialog-title']/footer/div/button[2]").click()
+            except: 
+                pass
+
             #copy link
             mega_link = longwait.until(EC.visibility_of_element_located((By.XPATH, "//input[contains(@value,'https://mega.nz/file/')]"))).get_attribute("value")
             if any(x in file for x in [".mp4",".mov"]):

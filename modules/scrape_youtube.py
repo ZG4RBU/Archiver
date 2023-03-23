@@ -1,72 +1,22 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from time import sleep
-import modules.htmls as htmls
+from selenium.webdriver.remote.webelement import WebElement
 from selectolax.parser import HTMLParser
-
-
-def chrome_setup(implicit_wait:int,headless:str):
-    options = Options()
-    options.add_argument('--disable-notifications')
-    options.add_argument("--start-maximized")
-    options.add_argument("--mute-audio")
-    options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
-
-    if headless == "True":
-        options.add_argument("--headless")
-        options.add_argument('--disable-gpu')
-        options.add_argument("--window-size=1920x1080")
-
-    s = Service('driver/chromedriver.exe')
-    driver = webdriver.Chrome(options=options,service=s)
-    driver.implicitly_wait(implicit_wait)
-
-    return driver
-
-
-def scroll_to_bottom(driver:webdriver.Chrome,delay:int):
-
-    old_position = 0
-    new_position = None
-
-    while new_position != old_position:
-        # Get old scroll position
-        old_position = driver.execute_script(
-                ("return (window.pageYOffset !== undefined) ?"
-                 " window.pageYOffset : (document.documentElement ||"
-                 " document.body.parentNode || document.body);"))
-        # Sleep and Scroll
-        sleep(delay+3)
-        driver.execute_script((
-                "var scrollingElement = (document.scrollingElement ||"
-                " document.body);scrollingElement.scrollTop ="
-                " scrollingElement.scrollHeight;"))
-        # Get new position
-        new_position = driver.execute_script(
-                ("return (window.pageYOffset !== undefined) ?"
-                 " window.pageYOffset : (document.documentElement ||"
-                 " document.body.parentNode || document.body);"))
-
-
-def slow_croll(driver:webdriver.Chrome,delay:int):
-    for _ in range(3):
-        driver.execute_script("window.scrollBy(0,100)","")
-        sleep(delay)
+from time import sleep
+from modules.archiver_utils import slow_croll
+from modules.archiver_utils import scroll_to_bottom
+import modules.htmls as htmls
 
 
 
-def scrape(link:str,delay:int,headless:str):
+def scrape(driver:webdriver.Chrome,yt_link:str,delay:int):
 
-    driver = chrome_setup(implicit_wait=delay+5,headless=headless)
-
-    driver.get(link)
+    driver.get(yt_link)
     slow_croll(driver,delay) #scroll to description section
     sleep(delay+2)
 
-    html = HTMLParser(driver.page_source)
+    html = HTMLParser(driver.page_source, detect_encoding=True)
 
     subscribers = html.css_first('#owner-sub-count').text()
 
@@ -81,14 +31,23 @@ def scrape(link:str,delay:int,headless:str):
     except:
         comments_count = "Comments are turned off."
 
-    driver.quit()
-
     return subscribers,like_count,profile_image,comments_count;
 
 
-def parse_comments(html:HTMLParser):
+def parse_comment_text(driver:webdriver.Chrome,element:WebElement) -> str:
+    "parse comments/replies text"
+    #insert emojis in text
+    emojis_imgs = element.find_elements(By.XPATH, './/yt-formatted-string[@id="content-text"]/img')
+    for emoji_img in emojis_imgs:
+        emoji = emoji_img.get_attribute('alt')
+        driver.execute_script("arguments[0].innerHTML = arguments[1];", emoji_img, emoji)
 
-    text = html.css_first('yt-formatted-string[id="content-text"]').text()
+    text = element.find_element(By.XPATH, './/yt-formatted-string[@id="content-text"]').text
+
+    return text
+
+
+def parse_comments(html:HTMLParser):
 
     like_count = html.css_first("[id='vote-count-middle']").text()
 
@@ -101,14 +60,13 @@ def parse_comments(html:HTMLParser):
     channel_pfp = html.css_first("yt-img-shadow [id='img']").attributes.get("src")
     channel_pfp = channel_pfp.replace("s88-c-k", "s48-c-k")
 
-    return text,like_count,channel_username,comment_date,channel_url,channel_pfp
+    return like_count,channel_username,comment_date,channel_url,channel_pfp
 
 
-def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
+def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
 
-    driver = chrome_setup(implicit_wait=delay+2,headless=headless)
+    driver.implicitly_wait(delay+2) #reduce implicit wait to speen up parsing comments
 
-    driver.get(link)
     slow_croll(driver,delay) #scroll to description section and wait for comments to load
     scroll_to_bottom(driver,delay) #scroll to end of the page to load all comments
 
@@ -121,14 +79,10 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
             if element.find_element(By.XPATH, './/*[@id="more"]').is_displayed(): #expand comment text
                 element.find_element(By.XPATH, './/*[@id="more"]').click()
 
-            #insert emojis in text
-            emojis_imgs = element.find_elements(By.XPATH, './/yt-formatted-string[@id="content-text"]/img')
-            for emoji_img in emojis_imgs:
-                emoji = emoji_img.get_attribute('alt')
-                driver.execute_script("arguments[0].innerHTML = arguments[1];", emoji_img, emoji)
+            text = parse_comment_text(driver,element)
 
             html = HTMLParser(element.get_attribute("innerHTML"))
-            text,like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html)
+            like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html)
 
             heart = element.find_element(By.XPATH, './/*[@id="creator-heart"]')
             if heart.is_displayed():
@@ -166,8 +120,10 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
 
                     driver.execute_script("arguments[0].scrollIntoView();", reply) #slow scroll replies
 
+                    text = parse_comment_text(driver,reply)
+
                     html = HTMLParser(reply.get_attribute("innerHTML"))
-                    text,like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html)
+                    like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html)
 
                     heart = reply.find_element(By.XPATH, './/*[@id="creator-heart"]')
                     if heart.is_displayed():
@@ -181,5 +137,3 @@ def add_comments(link:str,profile_image:str,output,delay:int,headless:str):
     except NoSuchElementException as e:
         print(f"No Such Element...{e}")
         pass
-
-    driver.quit()

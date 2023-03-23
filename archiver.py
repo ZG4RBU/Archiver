@@ -5,6 +5,7 @@ from colorama import init, Fore, Style
 init(autoreset=True)
 from configparser import ConfigParser
 from pytube import YouTube,Playlist,Channel
+from modules.archiver_utils import chrome_setup
 from modules.mega import mega_upload
 from modules.scrape_youtube import scrape,add_comments
 from modules.htmls import ending
@@ -33,8 +34,8 @@ def clear():
     os.system('cls' if os.name=='nt' else 'clear')
 
 def del_special_chars(filename:str) -> str:
-    """Windows doesn't allow these special characters in file names. This function removes the characters in order to avoid exception and save files locally on windows."""
-    
+    """Windows doesn't allow these special characters in file names. This function removes the characters to avoid exception and save files locally on windows."""
+
     special_chars = ["/","\\",":","*","?",'"',"<",">","|"]
 
     for char in special_chars:
@@ -45,40 +46,38 @@ def del_special_chars(filename:str) -> str:
 
 def input_youtube_links() -> list:
 
-    links_list = []
+    yy_links = []
     try:
         while True:
             print("\nNOTE:")
-            print("Add your YouTube links here. finally type 'S/s' to start")
+            print("Add YouTube links. finally type 'S/s' to start")
             link = input("\n >> Add a link: ")
-            
+
             if link.lower()=='s':
                 break
-            elif link in links_list: #avoid duplicates
+            elif link in yy_links: #avoid duplicates
                 pass
             elif any(x in link for x in ['/channel/', '/c/']):
-                links_list.extend(Channel(link))
+                yy_links.extend(Channel(link))
             elif 'playlist?' in link:
-                links_list.extend(Playlist(link))
+                yy_links.extend(Playlist(link))
             else:
-                links_list.append(link)
+                yy_links.append(link)
 
             #print Full list
             clear()
             print("Author\t Title\t  Link\t")
-            for link in links_list:
-                print(YouTube(link).author + '\t '+ YouTube(link).title + '\t ' + link)
+            for yy_link in yy_links:
+                print(YouTube(yy_link).author + '\t '+ YouTube(yy_link).title + '\t ' + yy_link)
     except:
         print(f"Make sure, the YouTube links are in a correct format.")
-    
-    return links_list
+
+    return yy_links
 
 
-def download_yt_videos(yt_links:list):
-    
-    path = "upload"
-    
-    #remove folder to avoid link and video mismatch in parse_to_html() zip func
+def download_yt_videos(yt_links:list,path:str="upload"):
+
+    #remove folder to avoid link and downloaded video mismatch in parse_to_html() zip func
     if os.path.exists(path):
         rmtree(path)
 
@@ -113,7 +112,8 @@ def parse_to_html(yt_links:list,mega_links:list):
         output = open("./yt_html_export/"+video_object.title+".html", 'wt', encoding="utf8")
 
         #scrape more info
-        subscribers,like_count,profile_image,comments_count = scrape(yt_link,settings.delay,settings.headless)
+        driver = chrome_setup(implicit_wait=settings.delay+5,headless=settings.headless)
+        subscribers,like_count,profile_image,comments_count = scrape(driver,yt_link,settings.delay)
 
         for line in input:
             output.write(line.replace('REPLACE_TITLE', f'{video_object.title}')
@@ -134,7 +134,9 @@ def parse_to_html(yt_links:list,mega_links:list):
                             .replace('VIDEO_SOURCE', f'{mega_link}'))
 
         if settings.save_comments == 'True':
-            add_comments(yt_link,profile_image,output,settings.delay,settings.headless)
+            add_comments(driver,profile_image,output,settings.delay)
+
+        driver.quit()
 
         output.write(ending.html_end)
 
@@ -153,7 +155,7 @@ if __name__ == '__main__':
     #upload yt videos on mega.io and return embed links 
     mega_links = mega_upload(settings.login,settings.password,settings.delay,settings.headless)
     print(Fore.GREEN + Style.BRIGHT + 'files uploaded to mega...')
-    
+
     #main func
     parse_to_html(yt_links,mega_links)
 
