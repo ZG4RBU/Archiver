@@ -1,5 +1,5 @@
 # Archiver
-Archiver lets you save YouTube videos offline as HTML files. With Archiver, you can download and store your favorite videos on the cloud, ensuring that they're always available - even if the original video is removed from YouTube.
+Save YouTube videos offline as HTML files. With Archiver, you can download and store your favorite videos on the cloud, ensuring that they're always available - even if the original video is removed from YouTube.
 Download an [example output](https://mega.nz/file/sbUGzCDS#HC_x1rCr22RRaNQSQWfZXh7Jd8BBIVJhSWycEgRvRAo)
 
 ![archiver_thumbnail](https://i.imgur.com/4PjU7B2.png)
