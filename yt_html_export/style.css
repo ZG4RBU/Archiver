@@ -567,7 +567,7 @@ img {
 .user-name,
 .comment-text {
   font-weight: normal;
-  letter-spacing: 1px;
+  letter-spacing: 0.2px;
 }
 
 .user-name {
@@ -584,6 +584,8 @@ img {
 
 .comment-text {
   font-size: 14px;
+  white-space: pre-wrap;
+  margin: 0 0 10px 0;
 }
 
 .user-comments-buttons {

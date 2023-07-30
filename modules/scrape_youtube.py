@@ -4,13 +4,13 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.remote.webelement import WebElement
 from selectolax.parser import HTMLParser
 from time import sleep
-from modules.archiver_utils import slow_croll
-from modules.archiver_utils import scroll_to_bottom
+from modules.selenium_utils import slow_croll, page_scroll
 import modules.htmls as htmls
 
 
 
-def scrape(driver:webdriver.Chrome,yt_link:str,delay:int):
+
+def scrape_info(driver:webdriver.Chrome,yt_link:str,delay:int) -> str:
 
     driver.get(yt_link)
     slow_croll(driver,delay) #scroll to description section
@@ -18,24 +18,17 @@ def scrape(driver:webdriver.Chrome,yt_link:str,delay:int):
 
     html = HTMLParser(driver.page_source, detect_encoding=True)
 
-    subscribers = html.css_first('#owner-sub-count').text()
-
-    like_count = html.css_first('div#segmented-like-button').css_first("span[role='text']").text()
-
     profile_image = html.css_first('yt-img-shadow#avatar img').attributes.get("src")
     profile_image = "".join(profile_image.replace("s88-c-k", "s48-c-k")) #make profile img size 48x48
 
-    try:
-        comments_count = html.css_first("h2[id='count'] span").text()
-        comments_count += ' Comments'
-    except:
-        comments_count = "Comments are turned off."
-
-    return subscribers,like_count,profile_image,comments_count;
+    return profile_image
 
 
 def parse_comment_text(driver:webdriver.Chrome,element:WebElement) -> str:
-    "parse comments/replies text"
+    """
+    parse comments/replies text
+    """
+
     #insert emojis in text
     emojis_imgs = element.find_elements(By.XPATH, './/yt-formatted-string[@id="content-text"]/img')
     for emoji_img in emojis_imgs:
@@ -56,24 +49,39 @@ def parse_comments(html:HTMLParser):
     comment_date = html.css_first("div[id='header-author'] yt-formatted-string a").text()
 
     channel_url = html.css_first("div[id='main'] div a").attributes.get("href")
+    channel_url = "https://www.youtube.com" + channel_url
 
     channel_pfp = html.css_first("yt-img-shadow [id='img']").attributes.get("src")
     channel_pfp = channel_pfp.replace("s88-c-k", "s48-c-k")
 
-    return like_count,channel_username,comment_date,channel_url,channel_pfp
+    return (like_count,channel_username,comment_date,channel_url,channel_pfp)
+
+
+def load_all_comments(driver:webdriver.Chrome,delay:float):
+    """ Scroll to end of the page to load all comments. """
+
+    # scroll to the bottom of the page
+    page_end_count = 0
+    while True:
+        if page_scroll(driver,delay) == "page_end":
+            page_end_count += 1
+            if page_end_count > 3:
+                break
+        else:
+            page_end_count = 0
 
 
 def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
 
-    driver.implicitly_wait(delay+2) #reduce implicit wait to speen up parsing comments
+    driver.implicitly_wait(delay+2) #reduce implicit wait to speed up parsing comments
 
     slow_croll(driver,delay) #scroll to description section and wait for comments to load
-    scroll_to_bottom(driver,delay) #scroll to end of the page to load all comments
+    load_all_comments(driver,delay)
 
     try:
         for element in driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer'): #[:10]
 
-            driver.execute_script("arguments[0].scrollIntoView();", element) #slow scroll comments
+            driver.execute_script("arguments[0].scrollIntoView();", element) #scroll to comment
             sleep(delay)
 
             if element.find_element(By.XPATH, './/*[@id="more"]').is_displayed(): #expand comment text
@@ -93,7 +101,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
             divs = htmls.ending.divs
 
             if len(element.find_elements(By.XPATH, './/*[@id="more-replies"]')) == 0:
-                #add comment
+                #add comment HTML
                 comment_box += divs
                 output.write(comment_box)
 
@@ -108,7 +116,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
                   
                 more_replies_toggle = htmls.more_replies_toggle(reply_count)
 
-                #add comment
+                #add comment HTML
                 comment_box += more_replies_toggle + divs
                 output.write(comment_box)
 

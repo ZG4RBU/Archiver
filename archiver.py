@@ -1,165 +1,195 @@
+
 import os
+import json
 import re
-from shutil import rmtree
-from colorama import init, Fore, Style
-init(autoreset=True)
-from configparser import ConfigParser
-from pytube import YouTube,Playlist,Channel
-from modules.archiver_utils import chrome_setup
+import yt_dlp
+from modules.input_youtube_links import input_youtube_links
+from modules.utilities import del_special_chars, convert_date_format, list_files_by_creation_date
+from modules.selenium_utils import chrome_setup
 from modules.mega import mega_upload
-from modules.scrape_youtube import scrape,add_comments
+from modules.scrape_youtube import scrape_info,add_comments
 from modules.htmls import ending
 
 
-class settings:
-    config = ConfigParser()
-    config.read('Settings.ini')
 
-    login = config.get('mega_auth', 'login')
-    password = config.get('mega_auth', 'password')
-    save_comments = config.get('youtube', 'save_comments')
-    delay = config.getint('delay', 'seconds')
-    headless = config.get('extra', 'headless')
+def remove_output_folder(output_directory:str):
+    """
+    Remove output folder to remove previously downloaded videos and 
+    avoid link and downloaded video mismatch in parse_to_html() zip func
+    """
+    from shutil import rmtree
 
-
-def on_complete(stream, filepath):
-	print(Fore.GREEN + Style.BRIGHT + 'download complete')
-	print(filepath)
-
-def on_progress(stream, chunk, bytes_remaining):
-	progress_string = f'{round(100 - (bytes_remaining / stream.filesize * 100),2)}%'
-	print(progress_string)
-
-def clear():
-    os.system('cls' if os.name=='nt' else 'clear')
-
-def del_special_chars(filename:str) -> str:
-    """Windows doesn't allow these special characters in file names. This function removes the characters to avoid exception and save files locally on windows."""
-
-    special_chars = ["/","\\",":","*","?",'"',"<",">","|"]
-
-    for char in special_chars:
-        if char in filename:
-            filename = filename.replace(char, "")
-    return filename
+    if os.path.exists(output_directory):
+        rmtree(output_directory)
 
 
-def input_youtube_links() -> list:
+def get_youtube_links_from_playlist(playlist_link:str) -> list[str]:
 
-    yy_links = []
-    try:
-        while True:
-            print("\nNOTE:")
-            print("Add YouTube links. finally type 'S/s' to start")
-            link = input("\n >> Add a link: ")
+    with yt_dlp.YoutubeDL() as ydl:
+        playlist_dict = ydl.extract_info(playlist_link, download=False)
+        video_list = playlist_dict.get('entries', [])
 
-            if link.lower()=='s':
-                break
-            elif link in yy_links: #avoid duplicates
-                pass
-            elif any(x in link for x in ['/channel/', '/c/']):
-                yy_links.extend(Channel(link))
-            elif 'playlist?' in link:
-                yy_links.extend(Playlist(link))
-            else:
-                yy_links.append(link)
+        youtube_links = []
 
-            #print Full list
-            clear()
-            print("Author\t Title\t  Link\t")
-            for yy_link in yy_links:
-                print(YouTube(yy_link).author + '\t '+ YouTube(yy_link).title + '\t ' + yy_link)
-    except:
-        print(f"Make sure, the YouTube links are in a correct format.")
+        for video in video_list:
+            youtube_links.append(video['webpage_url'])
 
-    return yy_links
+        return youtube_links
 
 
-def download_yt_videos(yt_links:list,path:str="upload"):
+def download_videos_with_info(video_urls:list,output_directory:str) -> list[dict]:
+    ydl_opts = {
+        'quiet': True,  # no stdout output
+        'format': 'best',
+        'no_warnings': True,
+        'forcetitle': True,
+        'writesubtitles': False,
+        'writeautomaticsub': False,
+        'writeinfojson': True,
+        'writecomments': True,  # Enables downloading comments
+        'skip_download': False,
+        'outtmpl': f"{output_directory}/%(title)s.%(ext)s"
+    }
 
-    #remove folder to avoid link and downloaded video mismatch in parse_to_html() zip func
-    if os.path.exists(path):
-        rmtree(path)
+    info_list = []
 
-    print("\ndownloading...")
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        for video_url in video_urls:
+            info = ydl.extract_info(video_url, download=True)
+            info_list.append(info)
 
-    for yt_link in yt_links:
-        video_object = YouTube(yt_link,
-                                on_complete_callback = on_complete,
-                                on_progress_callback = on_progress)
-
-        video_object.streams.get_highest_resolution().download(path)
+    return info_list
 
 
+def modify_exctracted_info(video_publish_date:str,channel_keywords:list,channel_description:str,comment_count:int|None,video_title:str) -> tuple:
 
-def parse_to_html(yt_links:list,mega_links:list):
+    # modify date format
+    video_publish_date = convert_date_format(str(video_publish_date))
 
-    for (yt_link, mega_link) in zip(yt_links, mega_links):
+    # add hashtag to keyword tags
+    channel_keywords = ['#'+i for i in channel_keywords]
+    channel_keywords = ' '.join(channel_keywords)
 
-        video_object = YouTube(yt_link)
+    # make description link-clickable
+    channel_description = re.sub(r'http\S+', '<a href="' + "\\g<0>" + '">' + "\\g<0>" + '</a>', channel_description)
 
-        #make description link-clickable
-        description = re.sub(r'http\S+', '<a href="' + "\\g<0>" + '">' + "\\g<0>" + '</a>', video_object.description)
-        #remove hour/min from publish date
-        publish_date = str(video_object.publish_date)[:-8]
-        #add hashtag to keyword tags
-        keywords = ['#'+i for i in video_object.keywords]
-        keywords = ' '.join(keywords)
+    # add comments tag
+    if comment_count is not None:
+        comment_count = f"{comment_count:,} Comments"
+    else:
+        comment_count = "Comments are turned off."
 
-        video_object.title = del_special_chars(video_object.title)
+    # remove special characters to save file on windows
+    video_title_filtered = del_special_chars(video_title)
+
+    return (video_publish_date,channel_keywords,channel_description,comment_count,video_title_filtered)
+
+
+def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],driver,delay:int,save_comments:bool):
+
+    for (yt_url,mega_url,info) in zip(yt_urls,mega_urls,info_list):
+
+        # Extract the relevant pieces of information
+        video_title = info.get('title', None)
+        video_views = info.get('view_count', None)
+        channel_author = info.get('uploader', None)
+        channel_url = info.get('uploader_url', None)
+        video_publish_date = info.get('upload_date', None)
+        channel_keywords = info.get('tags', None)
+        channel_description = info.get('description', None)
+        subscribers = info.get('channel_follower_count', None)
+        like_count = info.get('like_count', None)
+        comment_count = info.get('comment_count', None)
+
+        video_publish_date,channel_keywords,channel_description,comment_count,video_title_filtered = modify_exctracted_info(video_publish_date,channel_keywords,channel_description,comment_count,video_title)
 
         input = open("./yt_html_export/index.html", 'rt', encoding="utf8")
-        output = open("./yt_html_export/"+video_object.title+".html", 'wt', encoding="utf8")
+        output = open("./yt_html_export/"+video_title_filtered+".html", 'wt', encoding="utf8")
 
-        #scrape more info
-        driver = chrome_setup(implicit_wait=settings.delay+5,headless=settings.headless)
-        subscribers,like_count,profile_image,comments_count = scrape(driver,yt_link,settings.delay)
+        #scrape additional info
+        profile_image = scrape_info(driver,yt_url,delay)
 
         for line in input:
-            output.write(line.replace('REPLACE_TITLE', f'{video_object.title}')
-                            .replace('TITLE_URL', f'{yt_link}')
-                            .replace('NUMBER_OF_VIEWS', f'{video_object.views:,}')
-                            .replace('CHANNEL_AUTHOR', f'{video_object.author}')
-                            .replace('CHANNEL_URL', f'{video_object.channel_url}')
-                            .replace('PUBLISH_DATE', publish_date)
-                            .replace('CHANNEL_KEYWORDS', keywords)
-                            .replace('CHANNEL_DESCRIPTION', description)
-
-                            #scrape()
-                            .replace('CHANNEL_SUBSCRIBERS', f'{subscribers}')
+            output.write(line.replace('REPLACE_TITLE', f'{video_title}')
+                            .replace('TITLE_URL', f'{yt_url}')
+                            .replace('NUMBER_OF_VIEWS', f'{video_views:,}')
+                            .replace('CHANNEL_AUTHOR', f'{channel_author}')
+                            .replace('CHANNEL_URL', f'{channel_url}')
+                            .replace('PUBLISH_DATE', f'{video_publish_date}')
+                            .replace('CHANNEL_KEYWORDS', f'{channel_keywords}')
+                            .replace('CHANNEL_DESCRIPTION', f'{channel_description}')
+                            .replace('CHANNEL_SUBSCRIBERS', f'{subscribers:,}')
                             .replace('PROFILE_IMAGE_LINK', f'{profile_image}')
-                            .replace('LIKE_COUNT', f'{like_count}')
-                            .replace('COMMENTS_COUNT', f'{comments_count}')
+                            .replace('LIKE_COUNT', f'{like_count:,}')
+                            .replace('COMMENT_COUNT', f'{comment_count}')
 
-                            .replace('VIDEO_SOURCE', f'{mega_link}'))
+                            .replace('VIDEO_SOURCE', f'{mega_url}'))
 
-        if settings.save_comments == 'True':
-            add_comments(driver,profile_image,output,settings.delay)
-
-        driver.quit()
+        if save_comments == True:
+            add_comments(driver,profile_image,output,delay)
 
         output.write(ending.html_end)
-
-        print(Fore.GREEN + Style.BRIGHT + f'html created for {video_object.title}')
+        print(f"html created for {video_title}")
 
         input.close()
         output.close()
 
 
+def archiver(yt_urls:list,output_directory:str="downloaded"):
+
+    # remove_output_folder(output_directory)
+
+    # print("\nDownloading videos...")
+
+    # #extract yt urls from playlists
+    # for yt_url in yt_urls:
+    #     if "&list=" in yt_url:
+    #         extracted_urls = get_youtube_links_from_playlist(yt_url)
+    #         yt_urls.remove(yt_url)
+    #         yt_urls.extend(extracted_urls)
+
+    # #download yt videos and extract metadata
+    # info_list = download_videos_with_info(yt_urls,output_directory)
+
+    #load settings
+    settings: dict = json.loads(open('settings.json', encoding="utf-8").read())
+
+    login = settings.get("mega_auth").get("login")
+    password = settings.get("mega_auth").get("password")
+    save_comments = settings.get("youtube").get("save_comments")
+    delay = settings.get("extra").get("delay")
+    headless = settings.get("extra").get("headless")
+
+    if login == "" or password == "":
+        input("\nMega.io login credentials not found. Please enter them in settings.json")
+
+    #load chromedriver
+    driver = chrome_setup(
+                        implicit_wait=delay+5,
+                        headless=headless
+                        )
+
+    #list downloaded videos
+    files = list_files_by_creation_date(output_directory,except_extensions=[".json"])
+
+    #upload downloaded videos to Mega.io
+    mega_urls = mega_upload(driver,login,password,delay,files)
+
+    print("Files uploaded to Mega...")
+
+    #parse extracted metadata to html
+    parse_to_html(yt_urls,mega_urls,info_list,driver,delay,save_comments)
+
+    driver.quit()
+
+
+
 if __name__ == '__main__':
 
-    #download yt videos
-    yt_links = input_youtube_links()
-    download_yt_videos(yt_links)
+    yt_urls = input_youtube_links()
 
-    #upload yt videos on mega.io and return embed links 
-    mega_links = mega_upload(settings.login,settings.password,settings.delay,settings.headless)
-    print(Fore.GREEN + Style.BRIGHT + 'files uploaded to mega...')
+    #yt_urls = ["https://www.youtube.com/watch?v=-FShtfB--pQ","https://www.youtube.com/watch?v=LK6KVBnmWpU&list=PL8SZ21Qv2Fenl6Y7d0AqxJpKEf630g7HA&index=1"]
 
-    #main func
-    parse_to_html(yt_links,mega_links)
+    archiver(yt_urls)
 
-    input(Fore.GREEN + Style.BRIGHT + '\nfinished ...')
-
-
-
+    print("\nCompleted..")

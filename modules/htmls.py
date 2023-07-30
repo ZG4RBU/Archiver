@@ -92,7 +92,7 @@ class ending:
 
           <ul class="button-label-cont">
             <li><button class="button-label" id="selected-item">All</button></li>
-            <li><button class="button-label">Synthwave</button></li>
+            <li><button class="button-label">Recently uploaded</button></li>
             <li><button class="button-label">Related</button></li>
             <li><button><i class='bx bx-chevron-right chevron-icon'></i></button></li>
           </ul>
