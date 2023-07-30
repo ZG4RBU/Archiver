@@ -1,5 +1,5 @@
-# Archiver
-Save YouTube videos offline as HTML files with Archiver.    
+# Archiver    
+Save YouTube videos offline, complete with metadata, in an HTML interface that replicates the YouTube experience.
 Download an [example output](https://mega.nz/file/sbUGzCDS#HC_x1rCr22RRaNQSQWfZXh7Jd8BBIVJhSWycEgRvRAo)
 
 ![archiver_thumbnail](https://i.imgur.com/4PjU7B2.png)
@@ -36,7 +36,7 @@ Run `start.cmd` or run the command in terminal
 python3 archiver.py
 ``` 
 - The HTML output is saved in the `yt_html_export` folder.
-- When moving the HTML file outside the folder, make sure to also copy the `css` and `assets` folders.
+- When moving the HTML file outside the folder, make sure to also copy the `css` file and `assets` folder.
 
 ## Credits
 thanks @virag-ky for [this](https://github.com/virag-ky/Youtube-Clone) awesome html/css  
