@@ -1,4 +1,3 @@
-
 import os
 import json
 import re
@@ -137,19 +136,19 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
 
 def archiver(yt_urls:list,output_directory:str="downloaded"):
 
-    # remove_output_folder(output_directory)
+    remove_output_folder(output_directory)
 
-    # print("\nDownloading videos...")
+    print("\nDownloading videos...")
 
-    # #extract yt urls from playlists
-    # for yt_url in yt_urls:
-    #     if "&list=" in yt_url:
-    #         extracted_urls = get_youtube_links_from_playlist(yt_url)
-    #         yt_urls.remove(yt_url)
-    #         yt_urls.extend(extracted_urls)
+    #extract yt urls from playlists
+    for yt_url in yt_urls:
+        if "&list=" in yt_url:
+            extracted_urls = get_youtube_links_from_playlist(yt_url)
+            yt_urls.remove(yt_url)
+            yt_urls.extend(extracted_urls)
 
-    # #download yt videos and extract metadata
-    # info_list = download_videos_with_info(yt_urls,output_directory)
+    #download yt videos and extract metadata
+    info_list = download_videos_with_info(yt_urls,output_directory)
 
     #load settings
     settings: dict = json.loads(open('settings.json', encoding="utf-8").read())
