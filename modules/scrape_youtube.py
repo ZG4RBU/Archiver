@@ -4,9 +4,8 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.remote.webelement import WebElement
 from selectolax.parser import HTMLParser
 from time import sleep
-from modules.selenium_utils import slow_croll, page_scroll
+from modules.utilities.selenium_utils import slow_croll, page_scroll
 import modules.htmls as htmls
-
 
 
 

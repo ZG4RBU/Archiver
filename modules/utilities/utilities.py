@@ -3,6 +3,10 @@ from datetime import datetime
 
 
 
+def clear():
+    os.system('cls' if os.name=='nt' else 'clear')
+
+
 def del_special_chars(filename:str) -> str:
     """Removes special characters from a filename to ensure compatibility with Windows file naming rules."""
 
@@ -24,7 +28,7 @@ def convert_date_format(input_date:str) -> str:
 
     # Format the parsed date to "day Month Year" (e.g., "5 May 2022")
     formatted_date = parsed_date.strftime("%d %B %Y")
-    
+
     return formatted_date
 
 
@@ -53,4 +57,3 @@ def list_files_by_creation_date(folder_path:str,except_extensions:list=None) -> 
     file_paths.sort(key=lambda x: os.path.getctime(x))
 
     return file_paths
-
