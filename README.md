@@ -31,7 +31,7 @@ Archiver heavily depends on the selenium and yt-dlp modules. Initially, the YouT
 `extra > headless` > Run chrome as background process. Enter true/false
 
 NOTE:
-When setting the headless option to true, it's essential to keep the Chrome browser window open and avoid minimizing it. If you need to multitask, we recommend resizing the browser window to one half of the screen for a seamless working experience.
+When setting the headless option to true, it's essential to keep the Chrome browser window open and avoid minimizing it. If you need to multitask, it's recommended to resize the browser window to one half of the screen for a seamless working experience.
 
 ## Usage
 Run `start.cmd` or run the command in terminal
