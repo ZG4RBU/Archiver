@@ -17,8 +17,8 @@ src/
 
 # Output files, requirements.txt and settings.json
 *.txt
-requirements.txt
-settings.json
+*requirements.txt
+*settings.json
 
 # Comma-Separated Values (CSV) Reports
 *.csv
