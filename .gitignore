@@ -15,10 +15,8 @@ src/
 .ipynb_checkpoints
 *.ipynb
 
-# Output files, requirements.txt and settings.json
+# Output files
 *.txt
-*requirements.txt
-*settings.json
 
 # Comma-Separated Values (CSV) Reports
 *.csv
