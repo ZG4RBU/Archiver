@@ -94,7 +94,7 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
                             .replace('CHANNEL_SUBSCRIBERS', f'{subscribers:,}')
                             .replace('PROFILE_IMAGE_LINK', profile_image)
                             .replace('LIKE_COUNT', like_count)
-                            .replace('DISLIKE_COUNT', dislike_count)
+                            .replace('DISLIKES_COUNT', dislike_count)
                             .replace('COMMENT_COUNT', f'{comment_count}')
 
                             .replace('VIDEO_SOURCE', f'{mega_url}'))
@@ -161,7 +161,6 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
 if __name__ == '__main__':
 
     yt_urls = input_youtube_links()
-
     #yt_urls = ["https://www.youtube.com/watch?v=-FShtfB--pQ","https://www.youtube.com/watch?v=LK6KVBnmWpU&list=PL8SZ21Qv2Fenl6Y7d0AqxJpKEf630g7HA&index=1"]
 
     archiver(yt_urls)
