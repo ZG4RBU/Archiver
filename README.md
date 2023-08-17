@@ -12,14 +12,15 @@ Download an [example output](https://mega.nz/file/8ARy3QBQ#P93hzdTLX4Zxa6OhfHV6u
 Archiver heavily depends on the selenium and yt-dlp modules. Initially, the YouTube videos are downloaded locally and then uploaded to mega.io. Once the downloads are completed, the mega.io video embed link and YouTube video content are placed into HTML blocks, which are then used to build the HTML file.
 
 ## Prerequisites
-1. Python 3.6+
-2. Google Chrome
+1. Python 3.10+
+2. latest version of Google Chrome
 3. Mega.io account
 
 ## Setup
-1. Download code
-2. Run requirements.cmd
-3. Modify `settings.json` file
+1. Download the code directly or clone the repository using `git clone https://github.com/ZG4RBU/Archiver.git`.
+2. Install the necessary modules listed in `requirements.txt` by running `pip install -r requirements.txt`. Alternatively, on Windows, you can simply run the `requirements.cmd` script.
+3. Make sure you have the latest version of Google Chrome installed. This is required for the Selenium ChromeDriver component.
+4. Modify `settings.json` file
 
 ## Settings
 `mega_auth` > Enter your mega account login info
@@ -34,10 +35,11 @@ NOTE:
 When setting the headless option to true, it's essential to keep the Chrome browser window open and avoid minimizing it. If you need to multitask, it's recommended to resize the browser window to one half of the screen for a seamless working experience.
 
 ## Usage
-Run `start.cmd` or run the command in terminal
+To start the code, execute the following command:
 ```
 python3 archiver.py
-``` 
+```
+If you're on Windows, you can use the `start.cmd` script for an easy launch.
 - The HTML output is saved in the `yt_html_export` folder.
 - When moving the HTML file outside the folder, make sure to also copy the `css` file and `assets` folder.
 
