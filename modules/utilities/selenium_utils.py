@@ -1,16 +1,15 @@
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+import undetected_chromedriver as uc
 from time import sleep
 from random import uniform
 
 
 
-def chrome_setup(implicit_wait:int,headless:str):
-    options = Options()
+def chrome_setup(implicit_wait:int,headless:bool=False) -> uc.Chrome:
+    options = uc.ChromeOptions()
+    #options.add_argument("--window-size=1920x1080")
+    options.add_argument('--start-maximized')
     options.add_argument('--disable-notifications')
-    options.add_argument("--start-maximized")
     options.add_argument("--mute-audio")
     options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
 
@@ -19,8 +18,7 @@ def chrome_setup(implicit_wait:int,headless:str):
         options.add_argument('--disable-gpu')
         options.add_argument("--window-size=1920x1080")
 
-    s = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(options=options,service=s)
+    driver = uc.Chrome(options=options)
     driver.implicitly_wait(implicit_wait)
 
     return driver

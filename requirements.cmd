@@ -4,7 +4,7 @@
 cls
 
 pip install selenium
-pip install webdriver-manager
+pip install undetected_chromedriver
 pip install yt_dlp
 pip install selectolax
 

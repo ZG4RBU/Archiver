@@ -7,6 +7,7 @@ from modules.mega import mega_upload
 from modules.scrape_youtube import scrape_info,add_comments
 from modules.htmls import ending
 from modules.utilities.youtube_utils import download_videos_with_info, get_youtube_links_from_playlist, input_youtube_links
+from modules.utilities.utilities import clear
 
 
 
@@ -108,6 +109,26 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
         input.close()
         output.close()
 
+def chrome_version_exception(exception:str):
+
+    # Find Chromedriver version
+    chromedriver_version_index = exception.find("Chrome version ")
+    chromedriver_version = exception[chromedriver_version_index + len("Chrome version "):].split()[0]
+
+    # Find current browser version 
+    browser_version_index = exception.find("Current browser version is ")
+    browser_version = exception[browser_version_index + len("Current browser version is "):].split()[0]
+
+    title = "Chrome Version Mismatch"
+    text = f"Your current Google Chrome version is {browser_version}. For compatibility, please uninstall the current version and install Chrome version {chromedriver_version}."
+
+    clear()
+
+    print(f"\n{title}\n{text}")
+
+    input("\nPress enter to exit")
+    exit()
+
 
 def archiver(yt_urls:list,output_directory:str="downloaded"):
 
@@ -138,10 +159,16 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
     info_list = download_videos_with_info(yt_urls,output_directory)
 
     #load chromedriver
-    driver = chrome_setup(
-                        implicit_wait=delay+5,
-                        headless=headless
-                        )
+    try:
+        driver = chrome_setup(
+                            implicit_wait=delay+5,
+                            headless=headless
+                            )
+    except Exception as e:
+        print(e)
+
+        if "only supports Chrome version" in e:
+            chrome_version_exception(e)
 
     #list downloaded videos
     files = list_files_by_creation_date(output_directory,except_extensions=[".json"])

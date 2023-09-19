@@ -15,13 +15,17 @@ src/
 .ipynb_checkpoints
 *.ipynb
 
-# Output files
+# Text files
 *.txt
+!requirements.txt
+
+# Settings file
+settings.json
 
 # Comma-Separated Values (CSV) Reports
 *.csv
 
-#XLSX Reports
+# XLSX Reports
 *.xlsx
 
 # Excluded sites list
