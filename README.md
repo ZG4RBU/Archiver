@@ -13,7 +13,7 @@ Archiver heavily depends on the selenium and yt-dlp modules. Initially, the YouT
 
 ## Prerequisites
 1. Python 3.10+
-2. latest version of Google Chrome
+2. Latest version of Google Chrome
 3. Mega.io account
 
 ## Setup
