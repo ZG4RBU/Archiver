@@ -8,7 +8,7 @@ def clear():
 
 
 def del_special_chars(filename:str) -> str:
-    """Removes special characters from a filename to ensure compatibility with Windows file naming rules."""
+    """ Removes special characters from a filename to ensure compatibility with Windows file naming rules. """
 
     special_chars = ["/","\\",":","*","?",'"',"<",">","|"]
 

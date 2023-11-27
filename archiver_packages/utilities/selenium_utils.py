@@ -25,7 +25,7 @@ def chrome_setup(implicit_wait:int,headless:bool=False) -> uc.Chrome:
 
 
 def page_scroll(driver,delay:int) -> str|None:
-    '''Scroll the webpage. return str if reached to the bottom'''
+    ''' Scroll the webpage. return str if reached to the bottom. '''
 
     old_position = 0
     new_position = None

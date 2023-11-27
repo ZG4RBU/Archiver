@@ -1,58 +1,46 @@
-import os
 import json
 import re
-from modules.utilities.utilities import del_special_chars, convert_date_format, list_files_by_creation_date
-from modules.utilities.selenium_utils import chrome_setup
-from modules.mega import mega_upload
-from modules.scrape_youtube import scrape_info,add_comments
-from modules.htmls import ending
-from modules.utilities.youtube_utils import download_videos_with_info, get_youtube_links_from_playlist, input_youtube_links
-from modules.utilities.utilities import clear
+from archiver_packages.mega import mega_upload
+from archiver_packages.scrape_youtube import scrape_info,add_comments
+from archiver_packages.htmls import ending
+from archiver_packages.utilities.utilities import del_special_chars, convert_date_format, list_files_by_creation_date
+from archiver_packages.utilities.selenium_utils import chrome_setup
+from archiver_packages.utilities.youtube_utils import download_videos_with_info, get_youtube_links_from_playlist, input_youtube_links
+from archiver_packages.utilities.archiver_utils import remove_output_folder, chrome_version_exception
 
-
-
-def remove_output_folder(output_directory:str):
-    """
-    Remove output folder to remove previously downloaded videos and 
-    avoid link and downloaded video mismatch in parse_to_html() zip func
-    """
-    from shutil import rmtree
-
-    if os.path.exists(output_directory):
-        rmtree(output_directory)
 
 
 def modify_exctracted_info(video_publish_date:str,channel_keywords:list,channel_description:str,like_count:int|None,dislike_count:int|None,comment_count:int|None,video_title:str) -> tuple:
 
-    # modify date format
+    # Modify date format
     video_publish_date = convert_date_format(video_publish_date)
 
-    # add hashtag to keyword tags
+    # Add hashtag to keyword tags
     channel_keywords = ['#'+i for i in channel_keywords]
     channel_keywords = ' '.join(channel_keywords)
 
-    # make description link-clickable
+    # Make description link-clickable
     channel_description = re.sub(r'http\S+', '<a href="' + "\\g<0>" + '">' + "\\g<0>" + '</a>', channel_description)
 
-    # add likes
+    # Add likes
     if like_count is not None:
         like_count = f'{like_count:,}'
     else:
         like_count = "LIKE"
 
-    # add dislikes
+    # Add dislikes
     if dislike_count is not None:
         dislike_count = f'{dislike_count:,}'
     else:
         dislike_count = "DISLIKE"
 
-    # add comments tag
+    # Add comments tag
     if comment_count is not None:
         comment_count = f"{comment_count:,} Comments"
     else:
         comment_count = "Comments are turned off."
 
-    # remove special characters to save file on windows
+    # Remove special characters to save file on windows
     video_title_filtered = del_special_chars(video_title)
 
     return (video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count,video_title_filtered)
@@ -80,7 +68,7 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
         input = open("./yt_html_export/index.html", 'rt', encoding="utf8")
         output = open("./yt_html_export/"+video_title_filtered+".html", 'wt', encoding="utf8")
 
-        #scrape additional info
+        # Scrape additional info
         profile_image = scrape_info(driver,yt_url,delay)
 
         for line in input:
@@ -109,30 +97,10 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
         input.close()
         output.close()
 
-def chrome_version_exception(exception:str):
-
-    # Find Chromedriver version
-    chromedriver_version_index = exception.find("Chrome version ")
-    chromedriver_version = exception[chromedriver_version_index + len("Chrome version "):].split()[0]
-
-    # Find current browser version 
-    browser_version_index = exception.find("Current browser version is ")
-    browser_version = exception[browser_version_index + len("Current browser version is "):].split()[0]
-
-    title = "Chrome Version Mismatch"
-    text = f"Your current Google Chrome version is {browser_version}. For compatibility, please uninstall the current version and install Chrome version {chromedriver_version}."
-
-    clear()
-
-    print(f"\n{title}\n{text}")
-
-    input("\nPress enter to exit")
-    exit()
-
 
 def archiver(yt_urls:list,output_directory:str="downloaded"):
 
-    #load settings
+    # Load settings
     settings: dict = json.loads(open('settings.json', encoding="utf-8").read())
 
     login = settings.get("mega_auth").get("login")
@@ -148,17 +116,17 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
 
     print("\nDownloading videos...")
 
-    #extract yt urls from playlists
+    # Extract yt urls from playlists
     for yt_url in yt_urls:
         if "&list=" in yt_url:
             extracted_urls = get_youtube_links_from_playlist(yt_url)
             yt_urls.remove(yt_url)
             yt_urls.extend(extracted_urls)
 
-    #download yt videos and extract metadata
+    # Download yt videos and extract metadata
     info_list = download_videos_with_info(yt_urls,output_directory)
 
-    #load chromedriver
+    # Load chromedriver
     try:
         driver = chrome_setup(
                             implicit_wait=delay+5,
@@ -170,15 +138,15 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
         if "only supports Chrome version" in e:
             chrome_version_exception(e)
 
-    #list downloaded videos
+    # List downloaded videos
     files = list_files_by_creation_date(output_directory,except_extensions=[".json"])
 
-    #upload downloaded videos to Mega.io
+    # Upload downloaded videos to Mega.io
     mega_urls = mega_upload(driver,login,password,delay,files)
 
     print("Files uploaded to Mega...")
 
-    #parse extracted metadata to html
+    # Parse extracted metadata to html
     parse_to_html(yt_urls,mega_urls,info_list,driver,delay,save_comments)
 
     driver.quit()

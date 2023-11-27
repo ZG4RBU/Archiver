@@ -4,28 +4,28 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.remote.webelement import WebElement
 from selectolax.parser import HTMLParser
 from time import sleep
-from modules.utilities.selenium_utils import slow_croll, page_scroll
-import modules.htmls as htmls
+from archiver_packages.utilities.selenium_utils import slow_croll, page_scroll
+import archiver_packages.htmls as htmls
 
 
 
 def scrape_info(driver:webdriver.Chrome,yt_link:str,delay:int) -> str:
 
     driver.get(yt_link)
-    slow_croll(driver,delay) #scroll to description section
+    slow_croll(driver,delay) # Scroll to description section
     sleep(delay+2)
 
     html = HTMLParser(driver.page_source, detect_encoding=True)
 
     profile_image = html.css_first('yt-img-shadow#avatar img').attributes.get("src")
-    profile_image = "".join(profile_image.replace("s88-c-k", "s48-c-k")) #make profile img size 48x48
+    profile_image = "".join(profile_image.replace("s88-c-k", "s48-c-k")) # Make profile img size 48x48
 
     return profile_image
 
 
 def parse_comment_text(driver:webdriver.Chrome,element:WebElement) -> str:
     """
-    parse comments/replies text
+    Parse comments/replies text
     """
 
     #insert emojis in text
@@ -72,18 +72,18 @@ def load_all_comments(driver:webdriver.Chrome,delay:float):
 
 def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
 
-    driver.implicitly_wait(delay+2) #reduce implicit wait to speed up parsing comments
+    driver.implicitly_wait(delay+2) # Reduce implicit wait to speed up parsing comments
 
-    slow_croll(driver,delay) #scroll to description section and wait for comments to load
+    slow_croll(driver,delay) # Scroll to description section and wait for comments to load
     load_all_comments(driver,delay)
 
     try:
         for element in driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer'): #[:10]
 
-            driver.execute_script("arguments[0].scrollIntoView();", element) #scroll to comment
+            driver.execute_script("arguments[0].scrollIntoView();", element) # Scroll to comment
             sleep(delay)
 
-            if element.find_element(By.XPATH, './/*[@id="more"]').is_displayed(): #expand comment text
+            if element.find_element(By.XPATH, './/*[@id="more"]').is_displayed(): # Expand comment text
                 element.find_element(By.XPATH, './/*[@id="more"]').click()
 
             text = parse_comment_text(driver,element)
@@ -100,12 +100,12 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
             divs = htmls.ending.divs
 
             if len(element.find_elements(By.XPATH, './/*[@id="more-replies"]')) == 0:
-                #add comment HTML
+                # Add comment HTML
                 comment_box += divs
                 output.write(comment_box)
 
             else:
-                #add blue reply toggle
+                # Add blue reply toggle
                 reply_count = html.css_first("[id='more-replies'] button")
 
                 try:
@@ -115,17 +115,17 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
                   
                 more_replies_toggle = htmls.more_replies_toggle(reply_count)
 
-                #add comment HTML
+                # Add comment HTML
                 comment_box += more_replies_toggle + divs
                 output.write(comment_box)
 
-                #add replies
-                element.click() #fix element click intercepted
+                # Add replies
+                element.click() # Fix element click intercepted
                 element.find_element(By.XPATH, './/*[@id="more-replies"]').click()
 
                 for reply in element.find_elements(By.XPATH, './/*[@id="replies"]//*[@id="expander-contents"]//ytd-comment-renderer'):
 
-                    driver.execute_script("arguments[0].scrollIntoView();", reply) #slow scroll replies
+                    driver.execute_script("arguments[0].scrollIntoView();", reply) # Slow scroll replies
 
                     text = parse_comment_text(driver,reply)
 
@@ -137,7 +137,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
                         heart = htmls.heart(profile_image)
                     else: heart=""
 
-                    #add reply
+                    # Add reply
                     reply_box = htmls.reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
                     output.write(reply_box) 
 
