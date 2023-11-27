@@ -5,7 +5,7 @@ from archiver_packages.utilities.utilities import clear
 
 def fetch_videos_info(video_urls:list) -> list[dict]:
     ydl_opts = {
-        'quiet': True,  # no stdout output
+        'quiet': True,  # No stdout output
         'no_warnings': True,
         'forcetitle': True,
         'writesubtitles': False,
@@ -35,7 +35,7 @@ def input_youtube_links() -> list[str]:
 
             if link.lower()=='s':
                 break
-            if link not in yt_links: #avoid duplicates
+            if link not in yt_links: # Avoid duplicates
                 yt_links.append(link)
 
             #print Full list
@@ -71,7 +71,7 @@ def get_youtube_links_from_playlist(playlist_link:str) -> list[str]:
 
 def download_videos_with_info(video_urls:list,output_directory:str) -> list[dict]:
     ydl_opts = {
-        'quiet': True,  # no stdout output
+        'quiet': True,  # No stdout output
         'format': 'best',
         'no_warnings': True,
         'forcetitle': True,
