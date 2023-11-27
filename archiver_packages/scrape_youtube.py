@@ -25,10 +25,10 @@ def scrape_info(driver:webdriver.Chrome,yt_link:str,delay:int) -> str:
 
 def parse_comment_text(driver:webdriver.Chrome,element:WebElement) -> str:
     """
-    Parse comments/replies text
+    Parse comments/replies text.
     """
 
-    #insert emojis in text
+    # Insert emojis in text
     emojis_imgs = element.find_elements(By.XPATH, './/yt-formatted-string[@id="content-text"]/img')
     for emoji_img in emojis_imgs:
         emoji = emoji_img.get_attribute('alt')
@@ -59,7 +59,7 @@ def parse_comments(html:HTMLParser):
 def load_all_comments(driver:webdriver.Chrome,delay:float):
     """ Scroll to end of the page to load all comments. """
 
-    # scroll to the bottom of the page
+    # Scroll to the bottom of the page
     page_end_count = 0
     while True:
         if page_scroll(driver,delay) == "page_end":
