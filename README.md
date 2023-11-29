@@ -23,13 +23,13 @@ Archiver heavily depends on the selenium and yt-dlp modules. Initially, the YouT
 4. Modify `settings.json` file
 
 ## Settings
-`mega_auth` > Enter your mega account login info
+`mega_auth` > Enter your mega account login info.
 
-`youtube > save_comments` > Enter true/false
+`youtube > save_comments` > Enter true/false.
 
-`extra > delay` > Delay per action
+`extra > delay` > Delay per action.
 
-`extra > headless` > Run chrome as background process. Enter true/false
+`extra > headless` > Run chrome as background process. Enter true/false.
 
 NOTE:
 When setting the headless option to true, it's essential to keep the Chrome browser window open and avoid minimizing it. If you need to multitask, it's recommended to resize the browser window to one half of the screen for a seamless working experience.
@@ -43,7 +43,13 @@ If you're on Windows, you can use the `start.cmd` script for an easy launch.
 - The HTML output is saved in the `yt_html_export` folder.
 - When moving the HTML file outside the folder, make sure to also copy the `css` file and `assets` folder.
 
+## To-Do List
+- [ ] Implement support for downloading content from Instagram and TikTok
+- [ ] Enhance user interface for a more intuitive and user-friendly experience.
+- [ ] Explore the possibility of adding support for additional video platforms.
+- [ ] Enhance the writing and documentation for improved clarity.
+
 ## Credits
-thanks @virag-ky for [this](https://github.com/virag-ky/Youtube-Clone) awesome html/css  
+big thanks to @virag-ky for [this](https://github.com/virag-ky/Youtube-Clone) awesome html/css  
 
 For help contact @`zg4rbu#8684` (Discord)
