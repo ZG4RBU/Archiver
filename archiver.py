@@ -5,7 +5,7 @@ from archiver_packages.scrape_youtube import scrape_info,add_comments
 from archiver_packages.htmls import ending
 from archiver_packages.utilities.utilities import del_special_chars, convert_date_format, list_files_by_creation_date
 from archiver_packages.utilities.selenium_utils import chrome_setup
-from archiver_packages.utilities.youtube_utils import download_videos_with_info, get_youtube_links_from_playlist, input_youtube_links
+from archiver_packages.utilities.youtube_utils import download_videos_with_info, get_youtube_links_from_playlist_and_channel, input_youtube_links
 from archiver_packages.utilities.archiver_utils import remove_output_folder, chrome_version_exception
 
 
@@ -113,18 +113,25 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
         input("\nMega.io login credentials not found. Please enter them in settings.json")
 
     remove_output_folder(output_directory)
-
+    
     print("\nDownloading videos...")
 
-    # Extract yt urls from playlists
+    # Extract yt urls from playlists and channels
     for yt_url in yt_urls:
         if "&list=" in yt_url:
-            extracted_urls = get_youtube_links_from_playlist(yt_url)
+            extracted_urls = get_youtube_links_from_playlist_and_channel(yt_url)
+            yt_urls.remove(yt_url)
+            yt_urls.extend(extracted_urls)
+        elif "/@" in yt_url:
+            extracted_urls = get_youtube_links_from_playlist_and_channel(yt_url)
             yt_urls.remove(yt_url)
             yt_urls.extend(extracted_urls)
 
     # Download yt videos and extract metadata
     info_list = download_videos_with_info(yt_urls,output_directory)
+
+    print(f"YouTube urls: {len(yt_urls)}")
+    print(f"Metadata: {len(info_list)}")
 
     # Load chromedriver
     try:

@@ -30,7 +30,7 @@ def input_youtube_links() -> list[str]:
     try:
         while True:
             print("\nNOTE:")
-            print("Add YouTube Videos/Playlists one by one. Finally type 'S/s' to start")
+            print("Add YouTube Video/Playlist/Channel URLs one by one. Finally type 'S/s' to start")
             link = input("\n >> Add YouTube link: ")
 
             if link.lower()=='s':
@@ -38,7 +38,7 @@ def input_youtube_links() -> list[str]:
             if link not in yt_links: # Avoid duplicates
                 yt_links.append(link)
 
-            #print Full list
+            # Print Full list
             clear()
             print("Author\t Title\t  Link\t")
 
@@ -55,7 +55,7 @@ def input_youtube_links() -> list[str]:
     return yt_links
 
 
-def get_youtube_links_from_playlist(playlist_link:str) -> list[str]:
+def get_youtube_links_from_playlist_and_channel(playlist_link:str) -> list[str]:
 
     with yt_dlp.YoutubeDL() as ydl:
         playlist_dict = ydl.extract_info(playlist_link, download=False)

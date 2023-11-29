@@ -44,10 +44,10 @@ def mega_upload(driver:webdriver.Chrome,login:str,password:str,delay:int,files:l
             else:
                 WebDriverWait(driver, 60**2*5, poll_frequency=20).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='transfer-progress-txt' and text()='Completed']")))
 
-            # Select file
-            file = driver.find_element(By.XPATH, f"//span[@class='tranfer-filetype-txt' and text()='{filepath.name}']/parent::*/ancestor::tr")
+            # Select file on mega
+            mega_file = driver.find_element(By.XPATH, f'//span[@class="tranfer-filetype-txt" and text()="{filepath.name}"]/parent::*/ancestor::tr')
             act=ActionChains(driver)
-            act.move_to_element(file).click().perform()
+            act.move_to_element(mega_file).click().perform()
 
             # Click on get link button
             sleep(delay+1)
