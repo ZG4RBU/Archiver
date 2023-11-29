@@ -21,8 +21,6 @@ def del_special_chars(filename:str) -> str:
 
 def convert_date_format(input_date:str) -> str:
 
-    print(f"\nDate format conversion: {input_date}\n")
-
     # Parse the input date in the format "YYYYMMDD"
     parsed_date = datetime.strptime(input_date, "%Y%m%d")
 

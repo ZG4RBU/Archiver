@@ -92,7 +92,7 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
             add_comments(driver,profile_image,output,delay)
 
         output.write(ending.html_end)
-        print(f"html created for {video_title}")
+        print(f"HTML file created for {video_title}")
 
         input.close()
         output.close()
@@ -130,9 +130,6 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
     # Download yt videos and extract metadata
     info_list = download_videos_with_info(yt_urls,output_directory)
 
-    print(f"YouTube urls: {len(yt_urls)}")
-    print(f"Metadata: {len(info_list)}")
-
     # Load chromedriver
     try:
         driver = chrome_setup(
@@ -151,7 +148,7 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
     # Upload downloaded videos to Mega.io
     mega_urls = mega_upload(driver,login,password,delay,files)
 
-    print("Files uploaded to Mega...")
+    print("Files uploaded to Mega.")
 
     # Parse extracted metadata to html
     parse_to_html(yt_urls,mega_urls,info_list,driver,delay,save_comments)

@@ -71,7 +71,6 @@ def mega_upload(driver:webdriver.Chrome,login:str,password:str,delay:int,files:l
             # Close tab
             driver.find_element(By.XPATH, "//div[@aria-labelledby='export-links-title']/child::*").click()
 
-            
     except NoSuchElementException as e:
         print(f"No Such Element...{e}")
         pass

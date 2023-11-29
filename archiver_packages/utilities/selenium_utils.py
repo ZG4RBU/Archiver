@@ -36,7 +36,7 @@ def page_scroll(driver,delay:int) -> str|None:
                 " window.pageYOffset : (document.documentElement ||"
                 " document.body.parentNode || document.body);"))
     # Wait and scroll
-    sleep(delay+5)
+    sleep(delay+3)
     driver.execute_script((
             "var scrollingElement = (document.scrollingElement ||"
             " document.body);scrollingElement.scrollTop ="

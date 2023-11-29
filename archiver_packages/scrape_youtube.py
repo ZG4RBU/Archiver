@@ -64,7 +64,7 @@ def load_all_comments(driver:webdriver.Chrome,delay:float):
     while True:
         if page_scroll(driver,delay) == "page_end":
             page_end_count += 1
-            if page_end_count > 3:
+            if page_end_count > 2:
                 break
         else:
             page_end_count = 0
@@ -75,44 +75,56 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
     driver.implicitly_wait(delay+2) # Reduce implicit wait to speed up parsing comments
 
     slow_croll(driver,delay) # Scroll to description section and wait for comments to load
+    print("Loading comments...")
     load_all_comments(driver,delay)
 
-    try:
-        for element in driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer'): #[:10]
+    print("Fetching comments...")
+    comments = driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer')
+    comments_count = len(comments)
+    comments_fetched = 0
 
-            driver.execute_script("arguments[0].scrollIntoView();", element) # Scroll to comment
+    try:
+        for comment in comments: #[:10]
+            comments_fetched += 1
+            print(f"Fetched {comments_fetched}/{comments_count} comments.", end='\r')
+
+            # Scroll to comment
+            driver.execute_script("arguments[0].scrollIntoView();", comment)
             sleep(delay)
 
-            if element.find_element(By.XPATH, './/*[@id="more"]').is_displayed(): # Expand comment text
-                element.find_element(By.XPATH, './/*[@id="more"]').click()
+            # Expand comment text
+            if comment.find_element(By.XPATH, './/*[@id="more"]').is_displayed():
+                comment.find_element(By.XPATH, './/*[@id="more"]').click()
 
-            text = parse_comment_text(driver,element)
+            text = parse_comment_text(driver,comment)
 
-            html = HTMLParser(element.get_attribute("innerHTML"))
-            like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html)
+            html_comment = HTMLParser(comment.get_attribute("innerHTML"))
+            like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html_comment)
 
-            heart = element.find_element(By.XPATH, './/*[@id="creator-heart"]')
-            if heart.is_displayed():
+            # Add heart icon if present
+            heart = html_comment.css_first('#creator-heart-button')
+            if heart:
                 heart = htmls.heart(profile_image)
-            else: heart=""
+            else: 
+                heart = ""
 
             comment_box = htmls.comment_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
             divs = htmls.ending.divs
 
-            if len(element.find_elements(By.XPATH, './/*[@id="more-replies"]')) == 0:
+            if len(comment.find_elements(By.XPATH, './/*[@id="more-replies"]')) == 0:
                 # Add comment HTML
                 comment_box += divs
                 output.write(comment_box)
 
             else:
                 # Add blue reply toggle
-                reply_count = html.css_first("[id='more-replies'] button")
+                reply_count = html_comment.css_first("[id='more-replies'] button")
 
                 try:
                     reply_count = reply_count.attributes.get("aria-label")
                 except:
                     reply_count = reply_count.text()
-                  
+
                 more_replies_toggle = htmls.more_replies_toggle(reply_count)
 
                 # Add comment HTML
@@ -120,22 +132,39 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
                 output.write(comment_box)
 
                 # Add replies
-                element.click() # Fix element click intercepted
-                element.find_element(By.XPATH, './/*[@id="more-replies"]').click()
+                comment.click() # Fix element click intercepted
+                comment.find_element(By.XPATH, './/*[@id="more-replies"]').click()
 
-                for reply in element.find_elements(By.XPATH, './/*[@id="replies"]//*[@id="expander-contents"]//ytd-comment-renderer'):
+                # Click Show more replies button
+                while True:
+                    sleep(3)
+                    if len(comment.find_elements(By.XPATH, './/button[@aria-label="Show more replies"]')) > 0:
+                        comment.click() # Fix element click intercepted
+                        show_more_replies_btn = comment.find_element(By.XPATH, './/button[@aria-label="Show more replies"]')
+                        driver.execute_script("arguments[0].scrollIntoView();", show_more_replies_btn)
+                        driver.execute_script("window.scrollBy(0, -200)")
+                        sleep(1)
+                        show_more_replies_btn.click()
+                    else:
+                        break
+
+                replies = comment.find_elements(By.XPATH, './/*[@id="replies"]//*[@id="expander-contents"]//ytd-comment-renderer')
+
+                for reply in replies:
 
                     driver.execute_script("arguments[0].scrollIntoView();", reply) # Slow scroll replies
 
                     text = parse_comment_text(driver,reply)
 
-                    html = HTMLParser(reply.get_attribute("innerHTML"))
-                    like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html)
+                    html_reply = HTMLParser(reply.get_attribute("innerHTML"))
+                    like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html_reply)
 
-                    heart = reply.find_element(By.XPATH, './/*[@id="creator-heart"]')
-                    if heart.is_displayed():
+                    # Add heart icon if present
+                    heart = html_reply.css_first('#creator-heart-button')
+                    if heart:
                         heart = htmls.heart(profile_image)
-                    else: heart=""
+                    else: 
+                        heart = ""
 
                     # Add reply
                     reply_box = htmls.reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
