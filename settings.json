@@ -8,6 +8,6 @@
     },
     "extra": {
         "delay": 1,
-        "headless": false
+        "headless": true
     }
 }

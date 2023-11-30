@@ -113,7 +113,7 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
         input("\nMega.io login credentials not found. Please enter them in settings.json")
 
     remove_output_folder(output_directory)
-    
+
     print("\nDownloading videos...")
 
     # Extract yt urls from playlists and channels
@@ -160,8 +160,6 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
 if __name__ == '__main__':
 
     yt_urls = input_youtube_links()
-    #yt_urls = ["https://www.youtube.com/watch?v=-FShtfB--pQ","https://www.youtube.com/watch?v=LK6KVBnmWpU&list=PL8SZ21Qv2Fenl6Y7d0AqxJpKEf630g7HA&index=1"]
-
     archiver(yt_urls)
 
     print("\nCompleted..")

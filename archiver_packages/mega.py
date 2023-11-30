@@ -14,7 +14,7 @@ def mega_upload(driver:webdriver.Chrome,login:str,password:str,delay:int,files:l
     driver.get("https://mega.nz/login")
 
     longwait=WebDriverWait(driver, 60*2) # For longer waits
-    try:    
+    try:
 
         longwait.until(EC.element_to_be_clickable((By.ID, "login-name2")))
         driver.find_element(By.ID, "login-name2").send_keys(login)

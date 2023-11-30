@@ -39,6 +39,18 @@ def parse_comment_text(driver:webdriver.Chrome,element:WebElement) -> str:
     return text
 
 
+def style_reply_mention(input_text:str) -> str:
+    if input_text.strip().startswith('@'):
+
+        # Extract the first word
+        first_word, remaining_text = input_text.split(' ', 1)
+
+        # Apply style to the mention
+        input_text = f'<span style="color: #3EA6FF;">{first_word}</span> {remaining_text}'
+
+    return input_text
+
+
 def parse_comments(html:HTMLParser):
 
     like_count = html.css_first("[id='vote-count-middle']").text()
@@ -155,6 +167,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
                     driver.execute_script("arguments[0].scrollIntoView();", reply) # Slow scroll replies
 
                     text = parse_comment_text(driver,reply)
+                    text = style_reply_mention(text)
 
                     html_reply = HTMLParser(reply.get_attribute("innerHTML"))
                     like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html_reply)
@@ -163,7 +176,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
                     heart = html_reply.css_first('#creator-heart-button')
                     if heart:
                         heart = htmls.heart(profile_image)
-                    else: 
+                    else:
                         heart = ""
 
                     # Add reply

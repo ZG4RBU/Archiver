@@ -19,9 +19,6 @@ src/
 *.txt
 !requirements.txt
 
-# Settings file
-settings.json
-
 # Comma-Separated Values (CSV) Reports
 *.csv
 
