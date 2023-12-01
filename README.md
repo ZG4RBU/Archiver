@@ -5,7 +5,7 @@ Download an [example output](https://mega.nz/file/8ARy3QBQ#P93hzdTLX4Zxa6OhfHV6u
 ![archiver_thumbnail](https://i.imgur.com/4PjU7B2.png)
 
 ## Use Cases
-- Download YouTube videos that may be deleted later, in my case, it's music videos.
+- Download YouTube videos that may be deleted later.
 - Archiver can also be used as an OSINT tool to better visualize gathered information.
 
 ## How it Works
