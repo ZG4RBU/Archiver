@@ -111,6 +111,7 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
 
     if login == "" or password == "":
         input("\nMega.io login credentials not found. Please enter them in settings.json")
+        exit()
 
     remove_output_folder(output_directory)
 
