@@ -11,6 +11,7 @@ def remove_output_folder(output_directory:str):
     from shutil import rmtree
 
     if os.path.exists(output_directory):
+        os.chmod(output_directory, 0o777)
         rmtree(output_directory)
 
 

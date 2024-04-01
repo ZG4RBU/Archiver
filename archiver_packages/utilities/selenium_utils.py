@@ -7,7 +7,6 @@ from random import uniform
 
 def chrome_setup(implicit_wait:int,headless:bool=False) -> uc.Chrome:
     options = uc.ChromeOptions()
-    #options.add_argument("--window-size=1920x1080")
     options.add_argument('--start-maximized')
     options.add_argument('--disable-notifications')
     options.add_argument("--mute-audio")
