@@ -9,23 +9,32 @@ from time import sleep
 
 
 
-def mega_upload(driver:webdriver.Chrome,login:str,password:str,delay:int,files:list[str],embed:bool=True) -> list:
+def login_to_mega(driver:webdriver.Chrome,longwait,login:str,password:str):
 
     driver.get("https://mega.nz/login")
 
-    longwait=WebDriverWait(driver, 60*2) # For longer waits
+    longwait.until(EC.element_to_be_clickable((By.ID, "login-name2")))
+    driver.find_element(By.ID, "login-name2").send_keys(login)
+    driver.find_element(By.ID, "login-password2").send_keys(password)
+
+    driver.find_element(By.XPATH, '//*[@id="login_form"]/button/child::span').click()
+
+    # Check if login is successful
+    longwait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="transfer-bar-overlay"]')))
+
+
+def mega_upload(driver:webdriver.Chrome,delay:int,files:list[str],embed:bool=True) -> list:
+    """
+    Uploads files to mega.nz. It is required to have mega.nz file display set to List view instead of Thumbnail view.
+    """
+
+    longwait = WebDriverWait(driver, 60*2) # For longer waits
+
+    mega_links_list = []
+
     try:
-
-        longwait.until(EC.element_to_be_clickable((By.ID, "login-name2")))
-        driver.find_element(By.ID, "login-name2").send_keys(login)
-        driver.find_element(By.ID, "login-password2").send_keys(password)
-
-        driver.find_element(By.XPATH, '//*[@id="login_form"]/button/child::span').click()
-
-        # Check if login is successful
-        longwait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="transfer-bar-overlay"]')))
-
-        mega_links_list = []
+        # login_to_mega(driver,longwait,login,password)
+        driver.get("https://mega.nz/")
 
         for file in files:
 

@@ -1,24 +1,57 @@
-from selenium import webdriver
 import undetected_chromedriver as uc
 from time import sleep
 from random import uniform
+import os
 
 
 
-def chrome_setup(implicit_wait:int,headless:bool=False) -> uc.Chrome:
+def get_window_size(driver):
+    # Execute JavaScript to get screen width and height
+    script = "return [window.screen.width, window.screen.height];"
+    result = driver.execute_script(script)
+    return result[0], result[1]
+
+
+
+def kill_process(process_name:str):
+    from psutil import process_iter
+
+    if process_name in (p.name() for p in process_iter()):
+        os.system(f"taskkill /f /im  {process_name}")
+
+
+def chrome_setup(implicit_wait:int,profile:str,headless:bool=False,split_tabs:bool=False) -> uc.Chrome:
     options = uc.ChromeOptions()
     options.add_argument('--start-maximized')
     options.add_argument('--disable-notifications')
     options.add_argument("--mute-audio")
     options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
+    pc_user = os.getlogin()
+    options.add_argument(rf'--user-data-dir=C:\Users\{pc_user}\AppData\Local\Google\Chrome\User Data')
+    options.add_argument(f'--profile-directory={profile}')
+    program_files = "Program Files" if "Google" in os.listdir("C:\\Program Files") else "Program Files (x86)"
+    options.binary_location = f"C:\\{program_files}\\Google\\Chrome\\Application\\chrome.exe"
 
     if headless == True:
         options.add_argument("--headless")
         options.add_argument('--disable-gpu')
         options.add_argument("--window-size=1920x1080")
 
-    driver = uc.Chrome(options=options)
+    # Kill all chrome.exe processes to avoid chromedriver window already closed exception
+    kill_process("chrome.exe")
+
+    driver = uc.Chrome(options=options, headless=False)
     driver.implicitly_wait(implicit_wait)
+
+    # Get window size
+    width, height = get_window_size(driver)
+
+    # Split windows size in half
+    if split_tabs:
+        width = width // 2
+
+    # Set window size
+    driver.set_window_size(width, height)
 
     return driver
 
@@ -51,7 +84,7 @@ def page_scroll(driver,delay:int) -> str|None:
         return "page_end"
 
 
-def slow_croll(driver:webdriver.Chrome,delay:int):
+def slow_croll(driver:uc.Chrome,delay:int):
     for _ in range(3):
         driver.execute_script("window.scrollBy(0,100)","")
         sleep(delay)

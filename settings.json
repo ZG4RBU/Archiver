@@ -1,13 +1,10 @@
 {
-    "mega_auth": {
-        "login": "",
-        "password": ""
-    },
     "youtube": {
         "save_comments": true
     },
     "extra": {
         "delay": 1,
-        "headless": true
+        "headless": false,
+        "split_tabs": false
     }
 }
