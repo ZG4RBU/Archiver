@@ -45,9 +45,6 @@ If you're on Windows, you can use the `start.cmd` script for an easy launch.
 
 ## To-Do List
 - [ ] Implement support for downloading content from Instagram and TikTok
-- [ ] Enhance user interface for a more intuitive and user-friendly experience.
-- [ ] Explore the possibility of adding support for additional video platforms.
-- [ ] Enhance the writing and documentation for improved clarity.
 
 ## Credits
 big thanks to @virag-ky for [this](https://github.com/virag-ky/Youtube-Clone) awesome html/css  
