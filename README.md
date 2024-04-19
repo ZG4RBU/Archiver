@@ -20,7 +20,7 @@ Archiver heavily depends on the selenium and yt-dlp modules. Initially, the YouT
 1. Download the code directly or clone the repository using `git clone https://github.com/ZG4RBU/Archiver.git`.
 2. Install the necessary modules listed in `requirements.txt` by running `pip install -r requirements.txt`. Alternatively, on Windows, you can simply run the `requirements.cmd` script.
 3. Make sure you have the latest version of Google Chrome installed. This is required for the Selenium ChromeDriver component.
-4. Log in to mega.nz using your default Google Chrome profile. Additionally, it is required that the mega.nz file display is set to List view instead of Thumbnail view.
+4. Log in to mega.nz on your default Google Chrome profile. Additionally, it is required that the mega.nz file display is set to List view instead of Thumbnail view.
 5. Customize the `settings.json` file according to your preferences.
 
 ## Settings
