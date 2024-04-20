@@ -25,7 +25,7 @@ def login_to_mega(driver:webdriver.Chrome,longwait,login:str,password:str):
 
 def mega_upload(driver:webdriver.Chrome,delay:int,files:list[str],embed:bool=True) -> list:
     """
-    Uploads files to mega.nz. It is required to have mega.nz file display set to List view instead of Thumbnail view.
+    Uploads files to mega.nz.
     """
 
     longwait = WebDriverWait(driver, 60*2) # For longer waits
@@ -35,6 +35,15 @@ def mega_upload(driver:webdriver.Chrome,delay:int,files:list[str],embed:bool=Tru
     try:
         # login_to_mega(driver,longwait,login,password)
         driver.get("https://mega.nz/")
+
+        sleep(delay+10)
+
+        if "/fm/" not in driver.current_url:
+            raise ValueError("Failed to access Mega.nz account. Please ensure you're logged in to your Mega.nz account or create a new one by visiting https://mega.nz/.")
+
+        # Switch to List view
+        driver.find_element(By.XPATH, "//a[@title='List view']").click()
+        sleep(delay+1)
 
         for file in files:
 
@@ -66,7 +75,7 @@ def mega_upload(driver:webdriver.Chrome,delay:int,files:list[str],embed:bool=Tru
             # Click agree
             try:
                 driver.find_element(By.XPATH, "//div[@aria-labelledby='copyrights-dialog-title']/footer/div/button[2]").click()
-            except: 
+            except:
                 pass
 
             # Copy link
