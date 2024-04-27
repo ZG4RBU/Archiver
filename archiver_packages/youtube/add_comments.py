@@ -4,23 +4,23 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.remote.webelement import WebElement
 from selectolax.parser import HTMLParser
 from time import sleep
-from archiver_packages.utilities.selenium_utils import slow_croll, page_scroll
 import archiver_packages.htmls as htmls
+from archiver_packages.utilities.selenium_utils import slow_croll, page_scroll
+from archiver_packages.youtube.extract_comment_emoji import convert_youtube_emoji_url_to_emoji
 
 
 
-def scrape_info(driver:webdriver.Chrome,yt_link:str,delay:int) -> str:
+def format_text_emoji(input_text:str) -> str:
+    lines = input_text.split('\n')
+    merged_lines = []
 
-    driver.get(yt_link)
-    slow_croll(driver,delay) # Scroll to description section
-    sleep(delay+2)
+    for i in range(len(lines)):
+        if i > 0 and len(lines[i]) == 1:
+            merged_lines[-1] += ' ' + lines[i]
+        else:
+            merged_lines.append(lines[i])
 
-    html = HTMLParser(driver.page_source, detect_encoding=True)
-
-    profile_image = html.css_first('yt-img-shadow#avatar img').attributes.get("src")
-    profile_image = "".join(profile_image.replace("s88-c-k", "s48-c-k")) # Make profile img size 48x48
-
-    return profile_image
+    return '\n'.join(merged_lines)
 
 
 def parse_comment_text(driver:webdriver.Chrome,element:WebElement) -> str:
@@ -28,13 +28,17 @@ def parse_comment_text(driver:webdriver.Chrome,element:WebElement) -> str:
     Parse comments/replies text.
     """
 
-    # Insert emojis in text
-    emojis_imgs = element.find_elements(By.XPATH, './/yt-formatted-string[@id="content-text"]/img')
-    for emoji_img in emojis_imgs:
-        emoji = emoji_img.get_attribute('alt')
-        driver.execute_script("arguments[0].innerHTML = arguments[1];", emoji_img, emoji)
+    emojis_imgs = element.find_elements(By.XPATH, './/*[@id="content-text"]//img')
 
-    text = element.find_element(By.XPATH, './/yt-formatted-string[@id="content-text"]').text
+    for emoji_img in emojis_imgs:
+        emoji_url = emoji_img.get_attribute('src')
+        emoji = convert_youtube_emoji_url_to_emoji(emoji_url)
+
+        # Execute JavaScript to set the inner text of the element
+        driver.execute_script(f"arguments[0].innerText = '{emoji}';", emoji_img)
+
+    text = element.find_element(By.XPATH, './/*[@id="content-text"]').text
+    text = format_text_emoji(text)
 
     return text
 
@@ -57,7 +61,7 @@ def parse_comments(html:HTMLParser):
 
     channel_username = html.css_first("yt-img-shadow [id='img']").attributes.get("alt")
 
-    comment_date = html.css_first("div[id='header-author'] yt-formatted-string a").text()
+    comment_date = html.css_first("div[id='header-author'] span[id='published-time-text'] a").text()
 
     channel_url = html.css_first("div[id='main'] div a").attributes.get("href")
     channel_url = "https://www.youtube.com" + channel_url
@@ -82,13 +86,21 @@ def load_all_comments(driver:webdriver.Chrome,delay:float):
             page_end_count = 0
 
 
-def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
+def remove_video_recommendations(driver:webdriver.Chrome):
+    items = driver.find_element(By.XPATH, '//ytd-watch-next-secondary-results-renderer')
+    driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", items)
+
+
+def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_comments:int):
+
+    remove_video_recommendations(driver)
 
     driver.implicitly_wait(delay+2) # Reduce implicit wait to speed up parsing comments
 
     slow_croll(driver,delay) # Scroll to description section and wait for comments to load
+
     print("Loading comments...")
-    load_all_comments(driver,delay)
+    load_all_comments(driver,delay) ##
 
     print("Fetching comments...")
     comments = driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer')
@@ -117,7 +129,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int):
             heart = html_comment.css_first('#creator-heart-button')
             if heart:
                 heart = htmls.heart(profile_image)
-            else: 
+            else:
                 heart = ""
 
             comment_box = htmls.comment_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)

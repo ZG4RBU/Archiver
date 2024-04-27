@@ -28,7 +28,7 @@ def mega_upload(driver:webdriver.Chrome,delay:int,files:list[str],embed:bool=Tru
     Uploads files to mega.nz.
     """
 
-    longwait = WebDriverWait(driver, 60*2) # For longer waits
+    longwait = WebDriverWait(driver, 60*2)
 
     mega_links_list = []
 
