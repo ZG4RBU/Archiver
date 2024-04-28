@@ -1,18 +1,16 @@
 import os
 from archiver_packages.utilities.utilities import clear
+from datetime import datetime
 
 
-
-def remove_output_folder(output_directory:str):
-    """
-    Remove output folder to remove previously downloaded videos and 
-    avoid link and downloaded video mismatch in parse_to_html() zip func.
-    """
-    from shutil import rmtree
-
-    if os.path.exists(output_directory):
-        os.chmod(output_directory, 0o777)
-        rmtree(output_directory)
+def rename_directory_with_timestamp(directory_path):
+    if os.path.exists(directory_path):
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        new_directory_name = f"{directory_path} (Up to {current_time})"
+        os.rename(directory_path, new_directory_name)
+        print(f"Directory '{directory_path}' renamed to '{new_directory_name}' with timestamp.")
+    else:
+        print(f"Directory '{directory_path}' does not exist.")
 
 
 def chrome_version_exception(exception:str):

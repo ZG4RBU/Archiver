@@ -1,16 +1,25 @@
 import json
 import re
 from archiver_packages.mega import mega_upload
-from archiver_packages.htmls import ending
+from archiver_packages.youtube_html_elements import ending
 from archiver_packages.youtube.extract_info import scrape_info
 from archiver_packages.youtube.add_comments import add_comments
-from archiver_packages.utilities.utilities import del_special_chars, convert_date_format, list_files_by_creation_date
+from archiver_packages.utilities.utilities import convert_date_format 
+from archiver_packages.utilities.file_utils import move_file, create_directory, copy_file_or_directory, list_files_by_creation_date
 from archiver_packages.utilities.selenium_utils import chrome_setup
 from archiver_packages.youtube.download_video import download_videos_with_info, get_youtube_links_from_playlist_and_channel, input_youtube_links
-from archiver_packages.utilities.archiver_utils import remove_output_folder, chrome_version_exception
+from archiver_packages.utilities.archiver_utils import rename_directory_with_timestamp, chrome_version_exception
+import os
 
 
-def modify_exctracted_info(video_publish_date:str,channel_keywords:list,channel_description:str,like_count:int|None,dislike_count:int|None,comment_count:int|None,video_title:str) -> tuple:
+
+def extract_filename_without_extension(file_path):
+    filename_with_extension = os.path.basename(file_path)
+    filename_without_extension, _ = os.path.splitext(filename_with_extension)
+    return filename_without_extension
+
+
+def modify_exctracted_info(video_publish_date:str,channel_keywords:list,channel_description:str,like_count:int|None,dislike_count:int|None,comment_count:int|None) -> tuple:
 
     # Modify date format
     video_publish_date = convert_date_format(video_publish_date)
@@ -40,10 +49,16 @@ def modify_exctracted_info(video_publish_date:str,channel_keywords:list,channel_
     else:
         comment_count = "Comments are turned off."
 
-    # Remove special characters to save file on windows
-    video_title_filtered = del_special_chars(video_title)
+    return (video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count)
 
-    return (video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count,video_title_filtered)
+
+def get_html_output_dir(video_id:str) -> str:
+
+    root_directory = 'downloaded'
+
+    for dir in os.listdir(root_directory):
+        if video_id in dir:
+            return dir
 
 
 def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],driver,delay:int,save_comments:bool,max_comments:int):
@@ -63,10 +78,12 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
         dislike_count = info.get('dislike_count', None)
         comment_count = info.get('comment_count', None)
 
-        video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count,video_title_filtered = modify_exctracted_info(video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count,video_title)
+        video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count = modify_exctracted_info(video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count)
 
-        input = open("./yt_html_export/index.html", 'rt', encoding="utf8")
-        output = open("./yt_html_export/"+video_title_filtered+".html", 'wt', encoding="utf8")
+        html_output_dir = get_html_output_dir(info.get("id"))
+
+        input = open("./archiver_packages/youtube_html/index.html", 'rt', encoding="utf8")
+        output = open(f"./downloaded/{html_output_dir}/{html_output_dir}.html", 'wt', encoding="utf8")
 
         # Scrape additional info
         profile_image = scrape_info(driver,yt_url,delay)
@@ -97,6 +114,16 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
         input.close()
         output.close()
 
+        # Copy assets folder and style.css to html output dir
+        copy_file_or_directory(
+            "archiver_packages/youtube_html/assets",
+            f"downloaded/{html_output_dir}"
+        )
+        copy_file_or_directory(
+            "archiver_packages/youtube_html/style.css",
+            f"downloaded/{html_output_dir}"
+        )
+
 
 def archiver(yt_urls:list,output_directory:str="downloaded"):
 
@@ -109,7 +136,7 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
     headless = settings.get("extra").get("headless")
     split_tabs = settings.get("extra").get("split_tabs")
 
-    remove_output_folder(output_directory)
+    rename_directory_with_timestamp(output_directory)
 
     print("\nDownloading videos...")
 
@@ -127,6 +154,28 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
     # Download yt videos and extract metadata
     info_list = download_videos_with_info(yt_urls,output_directory)
 
+    # List downloaded videos
+    files = list_files_by_creation_date(output_directory,except_extensions=[".json"])
+    files_updated = []
+
+    # Move downloaded videos and info files to output folder
+    for file in files:
+        filename_without_extension = extract_filename_without_extension(file)
+        html_dir = f"downloaded/{filename_without_extension}"
+        create_directory(html_dir)
+        move_file(file, html_dir)
+
+        file_new_dir = f"downloaded/{html_dir}/{filename_without_extension}.mp4"
+        files_updated.append(file_new_dir)
+
+        # Move json files to html folder
+        for file in os.listdir(output_directory):
+            file = f"{output_directory}/{file}"
+            if filename_without_extension in file and file.endswith(".json"):
+                move_file(file, html_dir)
+
+    files = files_updated
+
     # Load chromedriver
     try:
         driver = chrome_setup(
@@ -141,9 +190,6 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
         if "only supports Chrome version" in e:
             chrome_version_exception(e)
 
-    # List downloaded videos
-    files = list_files_by_creation_date(output_directory,except_extensions=[".json"])
-
     # Upload downloaded videos to Mega.io
     mega_urls = mega_upload(driver,delay,files)
 
@@ -156,7 +202,8 @@ def archiver(yt_urls:list,output_directory:str="downloaded"):
 
 
 if __name__ == '__main__':
-    yt_urls = input_youtube_links()
+    # yt_urls = input_youtube_links()
+    yt_urls = ["https://www.youtube.com/watch?v=xyCCb7yRgZ4"]
     archiver(yt_urls)
 
     print("\nCompleted..")

@@ -80,7 +80,7 @@ def download_videos_with_info(video_urls:list,output_directory:str) -> list[dict
         'writeinfojson': True,
         'writecomments': True,  # Enables downloading comments
         'skip_download': False,
-        'outtmpl': f"{output_directory}/%(title)s.%(ext)s"
+        'outtmpl': f"{output_directory}/%(title)s [%(id)s].%(ext)s"
     }
 
     info_list = []

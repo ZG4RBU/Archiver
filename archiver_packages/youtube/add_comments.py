@@ -4,7 +4,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.remote.webelement import WebElement
 from selectolax.parser import HTMLParser
 from time import sleep
-import archiver_packages.htmls as htmls
+import archiver_packages.youtube_html_elements as youtube_html_elements
 from archiver_packages.utilities.selenium_utils import slow_croll, page_scroll
 from archiver_packages.youtube.extract_comment_emoji import convert_youtube_emoji_url_to_emoji
 
@@ -80,7 +80,7 @@ def load_all_comments(driver:webdriver.Chrome,delay:float):
     while True:
         if page_scroll(driver,delay) == "page_end":
             page_end_count += 1
-            if page_end_count > 2:
+            if page_end_count > 3:
                 break
         else:
             page_end_count = 0
@@ -100,7 +100,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
     slow_croll(driver,delay) # Scroll to description section and wait for comments to load
 
     print("Loading comments...")
-    load_all_comments(driver,delay) ##
+    load_all_comments(driver,delay)
 
     print("Fetching comments...")
     comments = driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer')
@@ -128,12 +128,12 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
             # Add heart icon if present
             heart = html_comment.css_first('#creator-heart-button')
             if heart:
-                heart = htmls.heart(profile_image)
+                heart = youtube_html_elements.heart(profile_image)
             else:
                 heart = ""
 
-            comment_box = htmls.comment_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
-            divs = htmls.ending.divs
+            comment_box = youtube_html_elements.comment_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
+            divs = youtube_html_elements.ending.divs
 
             if len(comment.find_elements(By.XPATH, './/*[@id="more-replies"]')) == 0:
                 # Add comment HTML
@@ -149,21 +149,21 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
                 except:
                     reply_count = reply_count.text()
 
-                more_replies_toggle = htmls.more_replies_toggle(reply_count)
+                more_replies_toggle = youtube_html_elements.more_replies_toggle(reply_count)
 
                 # Add comment HTML
                 comment_box += more_replies_toggle + divs
                 output.write(comment_box)
 
                 # Add replies
-                comment.click() # Fix element click intercepted
+                comment.click() # To fix element click intercepted
                 comment.find_element(By.XPATH, './/*[@id="more-replies"]').click()
 
                 # Click Show more replies button
                 while True:
                     sleep(3)
                     if len(comment.find_elements(By.XPATH, './/button[@aria-label="Show more replies"]')) > 0:
-                        comment.click() # Fix element click intercepted
+                        comment.click() # To fix element click intercepted
                         show_more_replies_btn = comment.find_element(By.XPATH, './/button[@aria-label="Show more replies"]')
                         driver.execute_script("arguments[0].scrollIntoView();", show_more_replies_btn)
                         driver.execute_script("window.scrollBy(0, -200)")
@@ -187,12 +187,12 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
                     # Add heart icon if present
                     heart = html_reply.css_first('#creator-heart-button')
                     if heart:
-                        heart = htmls.heart(profile_image)
+                        heart = youtube_html_elements.heart(profile_image)
                     else:
                         heart = ""
 
                     # Add reply
-                    reply_box = htmls.reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
+                    reply_box = youtube_html_elements.reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
                     output.write(reply_box) 
 
     except NoSuchElementException as e:
