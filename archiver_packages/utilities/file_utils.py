@@ -1,5 +1,6 @@
 import os
 import shutil
+import requests
 
 
 
@@ -85,3 +86,22 @@ def list_files_by_creation_date(folder_path:str,except_extensions:list=None) -> 
     file_paths.sort(key=lambda x: os.path.getctime(x))
 
     return file_paths
+
+
+def extract_filename_without_extension(file_path):
+    filename_with_extension = os.path.basename(file_path)
+    filename_without_extension, _ = os.path.splitext(filename_with_extension)
+    return filename_without_extension
+
+
+def download_file(thumbnail_url, save_path):
+    try:
+        response = requests.get(thumbnail_url)
+        if response.status_code == 200:
+            with open(save_path, 'wb') as f:
+                f.write(response.content)
+            print(f"Thumbnail saved to {save_path}")
+        else:
+            print(f"Error downloading thumbnail. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"Error downloading thumbnail: {e}")

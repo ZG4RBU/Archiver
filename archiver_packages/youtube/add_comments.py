@@ -59,7 +59,7 @@ def parse_comments(html:HTMLParser):
 
     like_count = html.css_first("[id='vote-count-middle']").text()
 
-    channel_username = html.css_first("yt-img-shadow [id='img']").attributes.get("alt")
+    channel_username = html.css_first("[id='author-text']").attributes.get("href")[1:]
 
     comment_date = html.css_first("div[id='header-author'] span[id='published-time-text'] a").text()
 
@@ -95,7 +95,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
 
     remove_video_recommendations(driver)
 
-    driver.implicitly_wait(delay+2) # Reduce implicit wait to speed up parsing comments
+    driver.implicitly_wait(delay+1) # Reduce implicit wait to speed up parsing comments
 
     slow_croll(driver,delay) # Scroll to description section and wait for comments to load
 
@@ -172,7 +172,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
                     else:
                         break
 
-                replies = comment.find_elements(By.XPATH, './/*[@id="replies"]//*[@id="expander-contents"]//ytd-comment-renderer')
+                replies = comment.find_elements(By.XPATH, './/*[@id="replies"]//*[@id="expander-contents"]//ytd-comment-view-model')
 
                 for reply in replies:
 

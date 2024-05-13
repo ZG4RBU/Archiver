@@ -47,6 +47,7 @@ def mega_upload(driver:webdriver.Chrome,delay:int,files:list[str],embed:bool=Tru
 
         for file in files:
 
+            # Upload file on mega
             filepath = Path(file).resolve()
 
             longwait.until(EC.visibility_of_all_elements_located((By.XPATH, "//div[@class='button link-button dropdown fm-uploads']")))

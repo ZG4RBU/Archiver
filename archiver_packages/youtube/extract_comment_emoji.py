@@ -38,11 +38,18 @@ def unicode_to_emoji(text):
 
 
 def convert_youtube_emoji_url_to_emoji(url:str) -> str:
+    
+    if url:
+        url_unicode = extract_emoji_unicode(url)
+    else:
+        return ""
 
-    url_unicode = extract_emoji_unicode(url)
-    unicode_code = convert_to_unicode(url_unicode)
-    emoji_text = unicode_to_emoji(unicode_code)
-    return emoji_text
+    if url_unicode:
+        unicode_code = convert_to_unicode(url_unicode)
+        emoji_text = unicode_to_emoji(unicode_code)
+        return emoji_text
+    else:
+        return ""
 
 
 if __name__ == '__main__':
