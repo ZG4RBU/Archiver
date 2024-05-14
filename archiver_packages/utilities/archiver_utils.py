@@ -38,8 +38,10 @@ def chrome_version_exception(exception:str):
     exit()
 
 
-def rename_filename_to_id(filename_without_extension,html_dir,file_output_dir):
-    id = re.search(r'\[([a-zA-Z0-9_]+)\]', filename_without_extension).group(1)
+def rename_filename_to_id(filename_without_extension,html_dir,file_output_dir) -> str:
+    id = re.search(r'\[([a-zA-Z0-9_-]+)\]', filename_without_extension).group(1)
 
     new_filename = f"{html_dir}/{id}.mp4"
     os.rename(file_output_dir, new_filename)
+
+    return new_filename

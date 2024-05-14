@@ -47,10 +47,13 @@ def style_reply_mention(input_text:str) -> str:
     if input_text.strip().startswith('@'):
 
         # Extract the first word
-        first_word, remaining_text = input_text.split(' ', 1)
+        words = input_text.split(' ', 1)
 
-        # Apply style to the mention
-        input_text = f'<span style="color: #3EA6FF;">{first_word}</span> {remaining_text}'
+        if len(words) > 1: #Check if there is more than one word to ensure that we have an actual mention instead of a one-word reply that starts with the '@' symbol
+            first_word, remaining_text = words
+
+            # Apply style to the mention
+            input_text = f'<span style="color: #3EA6FF;">{first_word}</span> {remaining_text}'
 
     return input_text
 
@@ -95,7 +98,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
 
     remove_video_recommendations(driver)
 
-    driver.implicitly_wait(delay+1) # Reduce implicit wait to speed up parsing comments
+    driver.implicitly_wait(delay) # Reduce implicit wait to speed up parsing comments
 
     slow_croll(driver,delay) # Scroll to description section and wait for comments to load
 

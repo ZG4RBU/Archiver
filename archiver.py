@@ -1,6 +1,5 @@
 import os
 import json
-from archiver_packages.mega import mega_upload
 from archiver_packages.utilities.file_utils import move_file, create_directory, list_files_by_creation_date, extract_filename_without_extension
 from archiver_packages.utilities.selenium_utils import chrome_setup
 from archiver_packages.youtube.download_video import download_videos_with_info, get_youtube_links_from_playlist_and_channel, input_youtube_links
@@ -76,19 +75,14 @@ def archiver(yt_urls:list,output_directory:str="youtube_downloads"):
         if "only supports Chrome version" in e:
             chrome_version_exception(e)
 
-    # Upload downloaded videos to Mega.io
-    mega_urls = mega_upload(driver,delay,files)
-
-    print("Files uploaded to Mega.")
-
     # Parse extracted metadata to html
-    parse_to_html(yt_urls,mega_urls,info_list,driver,delay,save_comments,max_comments)
+    parse_to_html(yt_urls,files,info_list,driver,delay,save_comments,max_comments)
 
     driver.quit()
+
+    print("\nCompleted..")
 
 
 if __name__ == '__main__':
     yt_urls = input_youtube_links()
     archiver(yt_urls)
-
-    print("\nCompleted..")

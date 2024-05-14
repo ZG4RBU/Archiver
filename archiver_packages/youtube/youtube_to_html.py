@@ -6,7 +6,11 @@ from archiver_packages.utilities.utilities import convert_date_format
 from archiver_packages.utilities.file_utils import copy_file_or_directory
 
 
-def modify_exctracted_info(video_publish_date:str,channel_keywords:list,channel_description:str,like_count:int|None,dislike_count:int|None,comment_count:int|None) -> tuple:
+def modify_exctracted_info(yt_url:str,video_publish_date:str,channel_keywords:list,channel_description:str,like_count:int|None,dislike_count:int|None,comment_count:int|None) -> tuple:
+
+    # Remove timecode from video URL
+    if "&" in yt_url:
+        yt_url = yt_url.split("&")[0]
 
     # Modify date format
     video_publish_date = convert_date_format(video_publish_date)
@@ -36,7 +40,7 @@ def modify_exctracted_info(video_publish_date:str,channel_keywords:list,channel_
     else:
         comment_count = "Comments are turned off."
 
-    return (video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count)
+    return (yt_url,video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count)
 
 
 def get_html_output_dir(video_id:str,root_directory='youtube_downloads') -> str:
@@ -46,9 +50,11 @@ def get_html_output_dir(video_id:str,root_directory='youtube_downloads') -> str:
             return dir
 
 
-def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],driver,delay:int,save_comments:bool,max_comments:int):
+def parse_to_html(yt_urls:list[str],files:list[str],info_list:list[dict],driver,delay:int,save_comments:bool,max_comments:int):
 
-    for (yt_url,mega_url,info) in zip(yt_urls,mega_urls,info_list):
+    for (yt_url,file,info) in zip(yt_urls,files,info_list):
+
+        filename = os.path.basename(file)
 
         # Extract the relevant pieces of information
         video_title = info.get('title', None)
@@ -64,7 +70,7 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
         comment_count = info.get('comment_count', None)
         video_id = info.get("id")
 
-        video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count = modify_exctracted_info(video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count)
+        yt_url,video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count = modify_exctracted_info(yt_url,video_publish_date,channel_keywords,channel_description,like_count,dislike_count,comment_count)
 
         html_output_dir = get_html_output_dir(video_id)
 
@@ -78,21 +84,22 @@ def parse_to_html(yt_urls:list[str],mega_urls:list[str],info_list:list[dict],dri
         profile_image = scrape_info(driver,yt_url,delay)
 
         for line in input:
-            output.write(line.replace('REPLACE_TITLE', video_title)
-                            .replace('TITLE_URL', yt_url)
-                            .replace('NUMBER_OF_VIEWS', f'{video_views:,}')
-                            .replace('CHANNEL_AUTHOR', channel_author)
-                            .replace('CHANNEL_URL', channel_url)
-                            .replace('PUBLISH_DATE', f'{video_publish_date}')
-                            .replace('CHANNEL_KEYWORDS', f'{channel_keywords}')
-                            .replace('CHANNEL_DESCRIPTION', channel_description)
-                            .replace('CHANNEL_SUBSCRIBERS', f'{subscribers:,}')
-                            .replace('PROFILE_IMAGE_LINK', profile_image)
-                            .replace('LIKE_COUNT', like_count)
-                            .replace('DISLIKES_COUNT', dislike_count)
-                            .replace('COMMENT_COUNT', f'{comment_count}')
-
-                            .replace('VIDEO_SOURCE', f'{mega_url}'))
+            output.write(
+                line.replace('REPLACE_TITLE', video_title)
+                .replace('TITLE_URL', yt_url)
+                .replace('NUMBER_OF_VIEWS', f'{video_views:,}')
+                .replace('CHANNEL_AUTHOR', channel_author)
+                .replace('CHANNEL_URL', channel_url)
+                .replace('PUBLISH_DATE', f'{video_publish_date}')
+                .replace('CHANNEL_KEYWORDS', f'{channel_keywords}')
+                .replace('CHANNEL_DESCRIPTION', channel_description)
+                .replace('CHANNEL_SUBSCRIBERS', f'{subscribers:,}')
+                .replace('PROFILE_IMAGE_LINK', profile_image)
+                .replace('LIKE_COUNT', like_count)
+                .replace('DISLIKES_COUNT', dislike_count)
+                .replace('COMMENT_COUNT', f'{comment_count}')
+                .replace('VIDEO_SOURCE', f'{filename}')
+            )
 
         if save_comments == True:
             add_comments(driver,profile_image,output,delay,max_comments)
