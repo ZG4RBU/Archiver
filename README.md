@@ -2,7 +2,7 @@
 Save YouTube videos offline, complete with metadata, in an HTML interface that replicates the YouTube experience.
 Download an [example output]()
 
-![archiver_thumbnail](https://i.imgur.com/WqmDovt.png)
+![archiver_thumbnail](https://i.imgur.com/MtBM7wS.png)
 
 ## Use Cases
 - Download YouTube videos that may be deleted later.
