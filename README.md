@@ -5,8 +5,10 @@ Download an [example output](https://f92.workupload.com/download/vSNxwUTLU36)
 ![archiver_thumbnail](https://i.imgur.com/0KuTe24.png)
 
 ## Use Cases
+- Create a personal offline library of your favorite YouTube content.
 - Download YouTube videos that may be deleted later.
 - Archiver can also be used as an OSINT tool to better visualize gathered information.
+- Ensure access to videos in regions with restricted internet access.
 
 ## How it Works
 Archiver relies on the Selenium and yt-dlp modules to function effectively. Here's a breakdown of its process:
