@@ -75,7 +75,7 @@ def parse_comments(html:HTMLParser):
     return (like_count,channel_username,comment_date,channel_url,channel_pfp)
 
 
-def load_all_comments(driver:webdriver.Chrome,delay:float):
+def load_all_comments(driver:webdriver.Chrome,delay:float,max_comments:int):
     """ Scroll to end of the page to load all comments. """
 
     # Scroll to the bottom of the page
@@ -87,6 +87,12 @@ def load_all_comments(driver:webdriver.Chrome,delay:float):
                 break
         else:
             page_end_count = 0
+
+        comments = driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer')
+        comments_count = len(comments)
+
+        if comments_count > max_comments:
+            break
 
 
 def remove_video_recommendations(driver:webdriver.Chrome):
@@ -103,15 +109,15 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
     slow_croll(driver,delay) # Scroll to description section and wait for comments to load
 
     print("Loading comments...")
-    load_all_comments(driver,delay)
+    load_all_comments(driver,delay,max_comments)
 
     print("Fetching comments...")
-    comments = driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer')
+    comments = driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer')[:max_comments]
     comments_count = len(comments)
     comments_fetched = 0
 
     try:
-        for comment in comments: #[:10]
+        for comment in comments:
             comments_fetched += 1
             print(f"Fetched {comments_fetched}/{comments_count} comments.", end='\r')
 
