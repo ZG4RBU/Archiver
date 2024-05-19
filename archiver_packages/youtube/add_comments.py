@@ -4,6 +4,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.remote.webelement import WebElement
 from selectolax.parser import HTMLParser
 from time import sleep
+import json
 import archiver_packages.youtube_html_elements as youtube_html_elements
 from archiver_packages.utilities.selenium_utils import slow_croll, page_scroll
 from archiver_packages.youtube.extract_comment_emoji import convert_youtube_emoji_url_to_emoji
@@ -60,11 +61,11 @@ def style_reply_mention(input_text:str) -> str:
 
 def parse_comments(html:HTMLParser):
 
-    like_count = html.css_first("[id='vote-count-middle']").text()
+    like_count = html.css_first("[id='vote-count-middle']").text().strip()
 
     channel_username = html.css_first("[id='author-text']").attributes.get("href")[1:]
 
-    comment_date = html.css_first("div[id='header-author'] span[id='published-time-text'] a").text()
+    comment_date = html.css_first("div[id='header-author'] span[id='published-time-text'] a").text().strip()
 
     channel_url = html.css_first("div[id='main'] div a").attributes.get("href")
     channel_url = "https://www.youtube.com" + channel_url
@@ -100,7 +101,15 @@ def remove_video_recommendations(driver:webdriver.Chrome):
     driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", items)
 
 
-def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_comments:int):
+def save_comments_to_json_file(path:str,comments_list:list[dict]):
+    if comments_list != []:
+        data = json.dumps(comments_list, indent=4)
+
+        with open(path, "w") as outfile:
+            outfile.write(data)
+
+
+def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,output,delay:int,max_comments:int):
 
     remove_video_recommendations(driver)
 
@@ -115,6 +124,7 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
     comments = driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer')[:max_comments]
     comments_count = len(comments)
     comments_fetched = 0
+    comments_list = []
 
     try:
         for comment in comments:
@@ -143,6 +153,19 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
 
             comment_box = youtube_html_elements.comment_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
             divs = youtube_html_elements.ending.divs
+
+            # Save comment metadata to dict
+            author_heart = True if heart else False
+            comment_dict = {
+                "text": text,
+                "like_count":like_count,
+                "channel_username":channel_username,
+                "comment_date":comment_date,
+                "channel_url":channel_url,
+                "channel_pfp":channel_pfp,
+                "author_heart":author_heart,
+                "replies": []
+            }
 
             if len(comment.find_elements(By.XPATH, './/*[@id="more-replies"]')) == 0:
                 # Add comment HTML
@@ -202,7 +225,24 @@ def add_comments(driver:webdriver.Chrome,profile_image:str,output,delay:int,max_
 
                     # Add reply
                     reply_box = youtube_html_elements.reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
-                    output.write(reply_box) 
+                    output.write(reply_box)
+
+                    # Save reply metadata to comment dict
+                    author_heart = True if heart else False
+                    reply_dict = {
+                        "text": text,
+                        "like_count":like_count,
+                        "channel_username":channel_username,
+                        "comment_date":comment_date,
+                        "channel_url":channel_url,
+                        "channel_pfp":channel_pfp,
+                        "author_heart":author_heart
+                    }
+                    comment_dict["replies"].append(reply_dict)
+
+            comments_list.append(comment_dict)
+
+        save_comments_to_json_file(f"youtube_downloads/{html_output_dir}/comments.json",comments_list)
 
     except NoSuchElementException as e:
         print(f"No Such Element...{e}")

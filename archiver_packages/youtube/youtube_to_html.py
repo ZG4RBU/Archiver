@@ -102,7 +102,7 @@ def parse_to_html(yt_urls:list[str],files:list[str],info_list:list[dict],driver,
             )
 
         if save_comments == True:
-            add_comments(driver,profile_image,output,delay,max_comments)
+            add_comments(driver,html_output_dir,profile_image,output,delay,max_comments)
 
         output.write(ending.html_end)
         print(f"HTML file created for {video_title}")
