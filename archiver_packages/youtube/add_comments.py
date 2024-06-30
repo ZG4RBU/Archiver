@@ -45,7 +45,10 @@ def parse_comment_text(driver:webdriver.Chrome,element:WebElement) -> str:
 
 
 def style_reply_mention(input_text:str) -> str:
-    if input_text.strip().startswith('@'):
+
+    input_text = input_text.strip()
+
+    if input_text.startswith('@'):
 
         # Extract the first word
         words = input_text.split(' ', 1)
