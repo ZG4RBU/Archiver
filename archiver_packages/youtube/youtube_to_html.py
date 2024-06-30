@@ -93,7 +93,7 @@ def parse_to_html(yt_urls:list[str],files:list[str],info_list:list[dict],driver,
                 .replace('PUBLISH_DATE', f'{video_publish_date}')
                 .replace('CHANNEL_KEYWORDS', f'{channel_keywords}')
                 .replace('CHANNEL_DESCRIPTION', channel_description)
-                .replace('CHANNEL_SUBSCRIBERS', f'{subscribers:,}')
+                .replace('CHANNEL_SUBSCRIBERS', f'{subscribers:,} subscribers')
                 .replace('PROFILE_IMAGE_LINK', profile_image)
                 .replace('LIKE_COUNT', like_count)
                 .replace('DISLIKES_COUNT', dislike_count)
@@ -102,7 +102,7 @@ def parse_to_html(yt_urls:list[str],files:list[str],info_list:list[dict],driver,
             )
 
         if save_comments == True:
-            add_comments(driver,html_output_dir,profile_image,output,delay,max_comments)
+            add_comments(driver,html_output_dir,profile_image,channel_author,output,delay,max_comments)
 
         output.write(ending.html_end)
         print(f"HTML file created for {video_title}")
@@ -110,12 +110,12 @@ def parse_to_html(yt_urls:list[str],files:list[str],info_list:list[dict],driver,
         input.close()
         output.close()
 
-        # Copy assets folder and style.css to html output dir
+        # Copy assets and styles folders to html output dir
         copy_file_or_directory(
             "archiver_packages/youtube_html/assets",
             f"youtube_downloads/{html_output_dir}"
         )
         copy_file_or_directory(
-            "archiver_packages/youtube_html/style.css",
+            "archiver_packages/youtube_html/styles",
             f"youtube_downloads/{html_output_dir}"
         )

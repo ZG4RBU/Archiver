@@ -4,49 +4,53 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Oswald" />
     <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet' />
 
     <title>
       REPLACE_TITLE
     </title>
-    
+
     <link rel="shortcut icon" href="assets/icons/youtube.png" type="image/x-icon">
-    <link rel="stylesheet" href="style.css" type="text/css" />
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/header.css">
   </head>
 
   <body tranlate="no">
-    <nav>
-      <div class="icons-cont">
-        <button class="menu-icon-button">
-          <i class='bx bx-menu'></i>
+
+    <header class="header">
+      <div class="left-section">
+        <button class="menu-button">
+          <img class="hamburger-menu" src="assets/icons/hamburger-menu.svg">
         </button>
-        
-        <div class="yt-icon-cont">
-          <img src="assets/icons/youtube.png" title="YouTube" class="yt-icon" />
-          <span class="yt-icon-text">YouTube</span>
-            
-          
+        <a href="https://www.youtube.com" target="_blank" class="youtube-link">
+          <img class="youtube-logo" src="assets/icons/youtube-logo.svg" alt="YouTube Logo">
+        </a>
+      </div>
+      <div class="middle-section">
+        <input class="search-bar" type="text" placeholder="Search">
+        <button class="search-button">
+          <img class="search-icon" src="assets/icons/search.svg">
+          <div class="tooltip">Search</div>
+        </button>
+        <button class="voice-search-button">
+          <img class="voice-search-icon" src="assets/icons/voice-search.svg">
+          <div class="tooltip">Search with your voice</div>
+        </button>
+      </div>
+      <div class="right-section">
+        <div class="upload-icon-container">
+          <img class="upload-icon" src="assets/icons/upload.svg">
+          <div class="tooltip">Create</div>
         </div>
+        <div class="notifications-icon-container">
+          <img class="notifications-icon" src="assets/icons/notifications.svg">
+          <div class="tooltip">Notifications</div>
+        </div>
+        <img class="current-user-picture" src="assets\icons\profile.png">
       </div>
-
-      <div class="nav-search-bar">
-        <input class="search-bar" type="text" placeholder="Search" />
-        <button class="nav-search-button" id="nav-search-button"><i class='bx bx-search'></i></button>
-        <button class="nav-mic-button" id="nav-mic-button"><i class='bx bxs-microphone'></i></button>
-      </div>
-
-      <div class="user-tools-cont">
-        <button class="camera-icon-button"><i class='bx bx-video'></i></button>
-        <button class="aplication-icon-button"><i class='bx bxs-grid'></i></button>
-        <button class="bell-icon-button"><i class='bx bx-bell'></i></button>
-
-        <img src="assets/icons/profile.png" alt="user-icon" class="user-profile-icon" />
-      </div>
-
-    </nav>
-
+    </header>
 
     <main>
 
@@ -54,7 +58,7 @@
       <article class="left-main-section" >
         <section class="main-video-section">
           <div class="container">
-            <iframe width="900" height="510" frameborder="0" src="VIDEO_SOURCE" allowfullscreen allow="autoplay;"></iframe>
+            <iframe class="main-video" frameborder="0" src="VIDEO_SOURCE" allowfullscreen allow="autoplay;"></iframe>
           </div>
 
           <h1 class="main-video-title">
@@ -133,7 +137,7 @@ CHANNEL_KEYWORDS
 
           <button class="sort-by">
             <i class='bx bx-sort-down sort-icon'></i>
-            <span>SORT BY</span>
+            <span>Sort by</span>
           </button>
         </div>
 
@@ -143,7 +147,8 @@ CHANNEL_KEYWORDS
             type="text"
             name="comment"
             id="comment"
-            placeholder="Add a public comment..."
+            class="comment-input"
+            placeholder="Add a comment..."
           />
         </div>
 

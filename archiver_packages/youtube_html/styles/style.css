@@ -1,5 +1,5 @@
 :root {
-  --Dark-gray: #181818;
+  --Dark-gray: #0f0f0f;
   --Gray: #202020;
 }
 
@@ -157,7 +157,7 @@ nav {
 
 /* Main content */
 main {
-  padding: 75px 25px 0 25px;
+  padding: 80px 80px 0 98px;
 
   display: grid;
   grid-template-areas: 
@@ -170,8 +170,7 @@ main {
 /* Video, comments, description section (Left section) */
 .left-main-section {
   grid-area: main-video;
-  width: 63vw;
-  margin: 0 20px 0 0;
+  width: 58vw;
 }
 
 .main-video-section {
@@ -180,15 +179,17 @@ main {
   margin: 0 auto;
 }
 
-#main-video {
-  width: 100%;
-  height: 480px;
+.main-video {
+  width: 890px;
+  height: 510px;
+  border-radius: 15px;
   min-width: 600px;
 }
 
 .main-video-title {
-  font-weight: 400;
+  font-weight: bold;
   padding-top: 20px;
+  padding-bottom: 7.5px;
 }
 
 .more-info-cont {
@@ -498,14 +499,12 @@ img {
 }
 
 .total-comments {
-  width: 122px;
-}
-
-.total-comments span {
-  font-weight: normal;
+  font-size: 18px;
+  font-weight: 950;
 }
 
 .sort-by {
+  width: 100px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -514,6 +513,7 @@ img {
 .sort-by span {
   color: #FFF;
   font-size: 14px;
+  padding-left: 10px;
   letter-spacing: 1px;
 }
 
@@ -522,6 +522,17 @@ img {
   
   padding: 25px 0 0 0;
   display: flex;
+}
+
+.comment-input {
+  background-color: transparent !important;
+  border: none;
+  outline: none;
+  flex: 1;
+}
+
+.comment-input::placeholder {
+  color: #aaaaaa;
 }
 
 #comment {
@@ -552,6 +563,21 @@ img {
   margin-top: 60px;
 }
 
+.comment-pinned {
+  font-size: 13px;
+  font-weight: 560;
+  color: #aaa;
+  margin-left: -5px;
+  margin-bottom: 1px;
+
+  display: flex;
+}
+
+.comment-pinned span {
+  margin-left: 3px;
+  margin-top:-4px;
+}
+
 .comment {
   display: flex;
   margin-bottom: 20px;
@@ -562,6 +588,7 @@ img {
   flex-direction: column;
   line-height: 24px;
   margin-left: 20px;
+  margin-top: -5px;
 }
 
 .user-name,
@@ -591,6 +618,7 @@ img {
 .user-comments-buttons {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .like { 
@@ -601,9 +629,11 @@ img {
 
 .reply {
   font-size: 12px;
-  color: #aaaaaa;
-  letter-spacing: 1px;
-  margin: 0 0 0 10px;
+  color: #ffffff;
+  font-weight: bold;
+
+  position: absolute;
+  margin: -9px 0 0 25px;
 }
 
 .icon {
@@ -653,7 +683,7 @@ img {
 
 
 
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 1435px) {
   main {
     padding: 70px 10px 0 10px;
 
@@ -669,7 +699,7 @@ img {
     width: 100%;
   }
 
-  #main-video {
+  .main-video {
     min-width: 800px;
   }
 
@@ -712,11 +742,6 @@ img {
   #nav-mic-button {
     background: transparent;
     margin: 0;
-  }
-
-  #main-video {
-    height: 300px;
-    min-width: 200px;
   }
 
   .yt-icon-text {

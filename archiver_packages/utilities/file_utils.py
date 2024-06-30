@@ -4,7 +4,7 @@ import requests
 
 
 
-def move_file(source_path, destination_path):
+def move_file(source_path:str, destination_path:str):
     try:
         # Check if source file exists
         if not os.path.exists(source_path):
@@ -18,7 +18,7 @@ def move_file(source_path, destination_path):
         print(f"An error occurred: {e}")
 
 
-def create_directory(directory_name):
+def create_directory(directory_name:str):
     try:
         # Check if the directory already exists
         if not os.path.exists(directory_name):
@@ -31,7 +31,7 @@ def create_directory(directory_name):
         print(f"Error creating directory '{directory_name}': {error}")
 
 
-def copy_file_or_directory(source_path, destination_path):
+def copy_file_or_directory(source_path:str, destination_path:str):
     try:
         if os.path.isfile(source_path):
             shutil.copy(source_path, destination_path)

@@ -101,6 +101,17 @@ def remove_video_recommendations(driver:webdriver.Chrome):
     driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", items)
 
 
+def check_for_pinned_comment(comment:WebElement,comments_fetched:int) -> bool:
+
+    is_comment_pinned = False
+
+    if comments_fetched == 1:
+        if len(comment.find_elements(By.XPATH, './/ytd-pinned-comment-badge-renderer')) > 0:
+            is_comment_pinned = True
+    
+    return is_comment_pinned
+
+
 def save_comments_to_json_file(path:str,comments_list:list[dict]):
     if comments_list != []:
         data = json.dumps(comments_list, indent=4)
@@ -109,7 +120,7 @@ def save_comments_to_json_file(path:str,comments_list:list[dict]):
             outfile.write(data)
 
 
-def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,output,delay:int,max_comments:int):
+def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,channel_author:str,output,delay:int,max_comments:int):
 
     remove_video_recommendations(driver)
 
@@ -131,6 +142,9 @@ def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,o
             comments_fetched += 1
             print(f"Fetched {comments_fetched}/{comments_count} comments.", end='\r')
 
+            # Check for pinned comment
+            is_comment_pinned = check_for_pinned_comment(comment,comments_fetched)
+
             # Scroll to comment
             driver.execute_script("arguments[0].scrollIntoView();", comment)
             sleep(delay)
@@ -151,7 +165,7 @@ def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,o
             else:
                 heart = ""
 
-            comment_box = youtube_html_elements.comment_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
+            comment_box = youtube_html_elements.comment_box(channel_url,channel_pfp,channel_username,channel_author,comment_date,text,like_count,heart,is_comment_pinned)
             divs = youtube_html_elements.ending.divs
 
             # Save comment metadata to dict

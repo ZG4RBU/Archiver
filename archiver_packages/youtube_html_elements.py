@@ -19,12 +19,26 @@ def heart(profile_image):
     return heart
 
 
-def comment_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart):
+def comment_box(channel_url,channel_pfp,channel_username,channel_author,comment_date,text,like_count,heart,is_comment_pinned:bool):
+
+    if is_comment_pinned:
+        comment_pinned_element = f"""
+              <div class="comment-pinned">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" style="pointer-events: none; display: inherit;">
+                  <path d="M16 11V3h1V2H7v1h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2zm1 3H7v-.59l1.71-1.71.29-.29V3h6v8.41l.29.29L17 13.41V14z" fill="#ffffff"></path>
+                </svg>
+                <span>Pinned by {channel_author}</span>
+              </div>
+              """
+    else:
+        comment_pinned_element = ""
+
     comment_box = f"""
           <div class="comment">
             <a href="{channel_url}"><div class="user-icons user-icon1"><img src="{channel_pfp}" alt="Avatar"></div></a>
               
             <div class="user">
+              {comment_pinned_element}
               <a href="{channel_url}"><span class="user-name">{channel_username}</span><span class="date">{comment_date}</span></a>
               <span class="comment-text">{text}</span>
               
@@ -35,10 +49,11 @@ def comment_box(channel_url,channel_pfp,channel_username,comment_date,text,like_
 
                 <button><i class='bx bx-dislike icon'></i></button>
                 {heart}
-                <button><span class="reply">REPLY</span></button>
+                <button><span class="reply">Reply</span></button>
               </div>
             """
     return comment_box
+
 
 def reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart):
 
@@ -57,7 +72,7 @@ def reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_co
 
                 <button><i class='bx bx-dislike icon'></i></button>
                 {heart}
-                <button><span class="reply">REPLY</span></button>
+                <button><span class="reply">Reply</span></button>
               </div>
             </div>
           </div>
