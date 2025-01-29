@@ -1,6 +1,21 @@
 
 
-def heart(profile_image):
+def mention(text:str) -> str:
+    mention = f'<span style="color: #3EA6FF;">{text}</span>'
+    return mention
+
+
+def redirect_url(text:str,url:str) -> str:
+    timestamp = f'<a href="{url}"><span style="color: #3EA6FF;">{text}</span></a>'
+    return timestamp
+
+
+def text_url_style(text:str) -> str:
+    timestamp = f'<a href="{text}"><span style="color: #3EA6FF;">{text}</span></a>'
+    return timestamp
+
+
+def heart(profile_image) -> str:
     heart=f"""
                 <div class="channel-owner-reaction">
                   <img src="{profile_image}" alt="Channel owner reaction">
@@ -19,7 +34,7 @@ def heart(profile_image):
     return heart
 
 
-def comment_box(channel_url,channel_pfp,channel_username,channel_author,comment_date,text,like_count,heart,is_comment_pinned:bool):
+def comment_box(channel_url,channel_pfp,channel_username,channel_author,comment_date,text,like_count,heart,is_comment_pinned:bool) -> str:
 
     if is_comment_pinned:
         comment_pinned_element = f"""
@@ -55,7 +70,7 @@ def comment_box(channel_url,channel_pfp,channel_username,channel_author,comment_
     return comment_box
 
 
-def reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart):
+def reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart) -> str:
 
     reply_box = f"""
           <div class="comment" style="position:relative; left:80px;">
@@ -80,14 +95,14 @@ def reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_co
     return reply_box
 
 
-def more_replies_toggle(reply_count):
-    more_replies_toggle= f"""
+def replies_toggle(reply_count) -> str:
+    replies_toggle= f"""
               <button class="view-replies">
                 <i class='bx bx-caret-down reply-icon'></i>
                 <span>{reply_count}</span>
               </button>
                 """
-    return more_replies_toggle
+    return replies_toggle
 
 
 class ending:

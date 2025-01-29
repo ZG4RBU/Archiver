@@ -69,7 +69,13 @@ def get_youtube_links_from_playlist_and_channel(playlist_link:str) -> list[str]:
         return youtube_links
 
 
-def download_videos_with_info(video_urls:list,output_directory:str) -> list[dict]:
+def download_videos_with_info(video_urls:list,output_directory:str,test_code:bool=False) -> list[dict]:
+
+    if test_code:
+        skip_download = True
+    else:
+        skip_download = False
+
     ydl_opts = {
         'quiet': True,  # No stdout output
         'format': 'bestvideo+bestaudio/best',
@@ -79,7 +85,7 @@ def download_videos_with_info(video_urls:list,output_directory:str) -> list[dict
         'writeautomaticsub': False,
         'writeinfojson': True,
         'writecomments': True,  # Enables downloading comments
-        'skip_download': False,
+        'skip_download': skip_download,
         'merge_output_format': 'mp4',  # Ensures the final output is in mp4 format
         'outtmpl': f"{output_directory}/%(title)s [%(id)s].%(ext)s"
     }

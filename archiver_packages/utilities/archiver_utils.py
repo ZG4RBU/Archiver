@@ -3,18 +3,16 @@ from archiver_packages.utilities.utilities import clear
 from datetime import datetime
 
 
-def rename_directory_with_timestamp(directory_path):
-    if os.path.exists(directory_path):
-        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        new_directory_name = f"{directory_path} (Up to {current_time})"
-        os.rename(directory_path, new_directory_name)
-        print(f"Directory '{directory_path}' renamed to '{new_directory_name}' with timestamp.")
+
+def create_directory_with_timestamp() -> str:
+
+    current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    new_directory_name = f"youtube_downloads ({current_time})"
 
     # Create the directory
-    os.makedirs(directory_path)
+    os.makedirs(new_directory_name)
 
-    # Set full permissions (read, write, execute) for owner, group, and others
-    os.chmod(directory_path, 0o777)
+    return new_directory_name
 
 
 def chrome_version_exception(exception:str):
@@ -23,7 +21,7 @@ def chrome_version_exception(exception:str):
     chromedriver_version_index = exception.find("Chrome version ")
     chromedriver_version = exception[chromedriver_version_index + len("Chrome version "):].split()[0]
 
-    # Find current browser version 
+    # Find current browser version
     browser_version_index = exception.find("Current browser version is ")
     browser_version = exception[browser_version_index + len("Current browser version is "):].split()[0]
 

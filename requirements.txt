@@ -1,4 +1,4 @@
-selenium
-undetected_chromedriver
+nodriver
 yt_dlp
 selectolax
+beautifulsoup4

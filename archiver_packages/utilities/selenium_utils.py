@@ -2,6 +2,7 @@ import undetected_chromedriver as uc
 from time import sleep
 from random import uniform
 import os
+from typing import Callable
 
 
 
@@ -84,7 +85,8 @@ def page_scroll(driver,delay:int) -> str|None:
         return "page_end"
 
 
-def slow_croll(driver:uc.Chrome,delay:int):
+async def slow_croll(tab,delay:Callable[[int],float]):
     for _ in range(3):
-        driver.execute_script("window.scrollBy(0,100)","")
-        sleep(delay)
+        scroll_amount = uniform(100,120)
+        await tab.evaluate(f"window.scrollBy(0, {scroll_amount});")
+        sleep(delay()+1)

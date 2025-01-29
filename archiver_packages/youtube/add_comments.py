@@ -1,14 +1,17 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.remote.webelement import WebElement
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# from selenium.common.exceptions import NoSuchElementException
+# from selenium.webdriver.remote.webelement import WebElement
 from selectolax.parser import HTMLParser
+from bs4 import BeautifulSoup
 from time import sleep
 import json
-import archiver_packages.youtube_html_elements as youtube_html_elements
-from archiver_packages.utilities.selenium_utils import slow_croll, page_scroll
+from archiver_packages.utilities.selenium_utils import slow_croll
+from archiver_packages.utilities.nodriver_utils import page_scroll, scroll_until_elements_loaded
 from archiver_packages.youtube.extract_comment_emoji import convert_youtube_emoji_url_to_emoji
-
+import archiver_packages.youtube_html_elements as youtube_html_elements
+from typing import Callable
+import urllib.parse
 
 
 def format_text_emoji(input_text:str) -> str:
@@ -24,24 +27,58 @@ def format_text_emoji(input_text:str) -> str:
     return '\n'.join(merged_lines)
 
 
-def parse_comment_text(driver:webdriver.Chrome,element:WebElement) -> str:
+async def parse_comment_text(comment_ele) -> tuple[str]:
     """
     Parse comments/replies text.
     """
 
-    emojis_imgs = element.find_elements(By.XPATH, './/*[@id="content-text"]//img')
+    text_ele = await comment_ele.query_selector('#content-text')
+    text_ele_html = await text_ele.get_html()
 
-    for emoji_img in emojis_imgs:
-        emoji_url = emoji_img.get_attribute('src')
+    soup = BeautifulSoup(text_ele_html, 'html.parser')
+
+    # Replace <img> tags with emoji
+    for img_ele in soup.find_all(lambda tag: tag.name=="img" and tag.has_attr('src') and "emoji" in tag["src"]):
+        emoji_url = img_ele["src"]
         emoji = convert_youtube_emoji_url_to_emoji(emoji_url)
+        img_ele.replace_with(emoji)
 
-        # Execute JavaScript to set the inner text of the element
-        driver.execute_script(f"arguments[0].innerText = '{emoji}';", emoji_img)
+    url_list, timestamp_list = [], []
 
-    text = element.find_element(By.XPATH, './/*[@id="content-text"]').text
-    text = format_text_emoji(text)
+    # Replace url tags with url
+    for url_ele in soup.find_all(lambda tag: tag.name=="a" and tag.has_attr('href') and "youtube.com/redirect?" in tag["href"]):
+        url = url_ele["href"]
+        url = url.split("&q=")[1]
+        decoded_url = urllib.parse.unquote(url)
+        url_ele.replace_with(decoded_url)
+        url_list.append(decoded_url)
 
-    return text
+    # Replace timestamp <a> tags with styled timestamp  
+    for url_ele in soup.find_all(lambda tag: tag.name=="a" and tag.has_attr('href') and "&t=" in tag["href"]):
+        timestamp_url = url_ele["href"]
+        timestamp_url = "https://www.youtube.com/" + timestamp_url
+        timestamp_text = url_ele.text.strip()
+        url_ele.replace_with(timestamp_text)
+        timestamp_list.append({"text":timestamp_text,"url":timestamp_url})
+
+    # Extract text
+    text = soup.get_text(separator=' ')
+    styled_text = text
+
+    # Replace url tags with styled urls
+    for url in url_list:
+        styled_url = youtube_html_elements.text_url_style(url)
+        styled_text = styled_text.replace(url, styled_url)
+
+    # Replace timestamp tags with styled timestamps
+    for timestamp in timestamp_list:
+        timestamp_text = timestamp.get("text")
+        timestamp_url = timestamp.get("url")
+        styled_timestamp = youtube_html_elements.redirect_url(timestamp_text,timestamp_url)
+
+        styled_text = styled_text.replace(timestamp_text, styled_timestamp)
+
+    return text, styled_text
 
 
 def style_reply_mention(input_text:str) -> str:
@@ -53,11 +90,12 @@ def style_reply_mention(input_text:str) -> str:
         # Extract the first word
         words = input_text.split(' ', 1)
 
-        if len(words) > 1: #Check if there is more than one word to ensure that we have an actual mention instead of a one-word reply that starts with the '@' symbol
+        if len(words) > 1: # Check if there is more than one word to ensure that we have an actual mention instead of a one-word reply that starts with the '@' symbol
             first_word, remaining_text = words
 
             # Apply style to the mention
-            input_text = f'<span style="color: #3EA6FF;">{first_word}</span> {remaining_text}'
+            input_text = youtube_html_elements.mention(first_word)
+            input_text = f"{input_text} {remaining_text}"
 
     return input_text
 
@@ -79,39 +117,45 @@ def parse_comments(html:HTMLParser):
     return (like_count,channel_username,comment_date,channel_url,channel_pfp)
 
 
-def load_all_comments(driver:webdriver.Chrome,delay:float,max_comments:int):
+async def load_all_comments(tab,delay:Callable[[int],float],max_comments:int,comment_count:int):
     """ Scroll to end of the page to load all comments. """
+
+    # await scroll_until_elements_loaded(
+    #     tab=tab,
+    #     number_of_elements=comment_count,
+    #     number_of_page_results=20,
+    #     delay=delay
+    #     )
 
     # Scroll to the bottom of the page
     page_end_count = 0
     while True:
-        if page_scroll(driver,delay) == "page_end":
+        if await page_scroll(tab,delay) == "page_end":
             page_end_count += 1
             if page_end_count > 3:
                 break
         else:
             page_end_count = 0
 
-        comments = driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer')
+        comments = await tab.select_all('#contents ytd-comment-thread-renderer')
         comments_count = len(comments)
 
         if comments_count > max_comments:
             break
 
-
-def remove_video_recommendations(driver:webdriver.Chrome):
-    items = driver.find_element(By.XPATH, '//ytd-watch-next-secondary-results-renderer')
-    driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", items)
+    return comments
 
 
-def check_for_pinned_comment(comment:WebElement,comments_fetched:int) -> bool:
+async def check_for_pinned_comment(comment,comments_fetched:int) -> bool:
 
     is_comment_pinned = False
 
     if comments_fetched == 1:
-        if len(comment.find_elements(By.XPATH, './/ytd-pinned-comment-badge-renderer')) > 0:
+        pinned_comment_elements = await comment.query_selector_all("ytd-pinned-comment-badge-renderer")
+
+        if len(pinned_comment_elements) > 0:
             is_comment_pinned = True
-    
+
     return is_comment_pinned
 
 
@@ -123,19 +167,15 @@ def save_comments_to_json_file(path:str,comments_list:list[dict]):
             outfile.write(data)
 
 
-def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,channel_author:str,output,delay:int,max_comments:int):
+async def add_comments(tab,output_directory:str,html_output_dir:str,profile_image:str,comment_count:int,channel_author:str,output,delay:Callable[[int],float],max_comments:int,test_code:bool=False):
 
-    remove_video_recommendations(driver)
-
-    driver.implicitly_wait(delay) # Reduce implicit wait to speed up parsing comments
-
-    slow_croll(driver,delay) # Scroll to description section and wait for comments to load
+    await slow_croll(tab,delay) # Scroll to description section and wait for comments to load
 
     print("Loading comments...")
-    load_all_comments(driver,delay,max_comments)
+    comments = await load_all_comments(tab,delay,max_comments,comment_count)
+    comments = comments[:max_comments]
 
     print("Fetching comments...")
-    comments = driver.find_elements(By.XPATH, '//*[@id="contents"]//ytd-comment-thread-renderer')[:max_comments]
     comments_count = len(comments)
     comments_fetched = 0
     comments_list = []
@@ -146,19 +186,18 @@ def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,c
             print(f"Fetched {comments_fetched}/{comments_count} comments.", end='\r')
 
             # Check for pinned comment
-            is_comment_pinned = check_for_pinned_comment(comment,comments_fetched)
+            is_comment_pinned = await check_for_pinned_comment(comment,comments_fetched)
 
             # Scroll to comment
-            driver.execute_script("arguments[0].scrollIntoView();", comment)
-            sleep(delay)
+            await comment.scroll_into_view()
+            sleep(delay()+1)
 
-            # Expand comment text
-            if comment.find_element(By.XPATH, './/*[@id="more"]').is_displayed():
-                comment.find_element(By.XPATH, './/*[@id="more"]').click()
+            text, styled_text = await parse_comment_text(comment)
 
-            text = parse_comment_text(driver,comment)
+            # comment_inner_html = await comment.evaluate("(element) => element.innerHTML")
+            comment_html = await comment.get_html()
 
-            html_comment = HTMLParser(comment.get_attribute("innerHTML"))
+            html_comment = HTMLParser(comment_html)
             like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html_comment)
 
             # Add heart icon if present
@@ -168,7 +207,7 @@ def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,c
             else:
                 heart = ""
 
-            comment_box = youtube_html_elements.comment_box(channel_url,channel_pfp,channel_username,channel_author,comment_date,text,like_count,heart,is_comment_pinned)
+            comment_box = youtube_html_elements.comment_box(channel_url,channel_pfp,channel_username,channel_author,comment_date,styled_text,like_count,heart,is_comment_pinned)
             divs = youtube_html_elements.ending.divs
 
             # Save comment metadata to dict
@@ -184,7 +223,9 @@ def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,c
                 "replies": []
             }
 
-            if len(comment.find_elements(By.XPATH, './/*[@id="more-replies"]')) == 0:
+            replies_btn = await comment.query_selector_all("#more-replies button")
+
+            if len(replies_btn) == 0:
                 # Add comment HTML
                 comment_box += divs
                 output.write(comment_box)
@@ -198,39 +239,49 @@ def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,c
                 except:
                     reply_count = reply_count.text()
 
-                more_replies_toggle = youtube_html_elements.more_replies_toggle(reply_count)
+                replies_toggle = youtube_html_elements.replies_toggle(reply_count)
 
                 # Add comment HTML
-                comment_box += more_replies_toggle + divs
+                comment_box += replies_toggle + divs
                 output.write(comment_box)
 
-                # Add replies
-                comment.click() # To fix element click intercepted
-                comment.find_element(By.XPATH, './/*[@id="more-replies"]').click()
+                # Click replies button to load replies
+                sleep(delay())
+                replies_btn = await comment.query_selector("#more-replies button")
+                await replies_btn.click()
+                sleep(delay()+2)
+                await slow_croll(tab, delay)
+                sleep(delay()+5)
 
                 # Click Show more replies button
                 while True:
-                    sleep(3)
-                    if len(comment.find_elements(By.XPATH, './/button[@aria-label="Show more replies"]')) > 0:
-                        comment.click() # To fix element click intercepted
-                        show_more_replies_btn = comment.find_element(By.XPATH, './/button[@aria-label="Show more replies"]')
-                        driver.execute_script("arguments[0].scrollIntoView();", show_more_replies_btn)
-                        driver.execute_script("window.scrollBy(0, -200)")
-                        sleep(1)
-                        show_more_replies_btn.click()
+                    show_more_replies = await comment.query_selector_all("button[aria-label='Show more replies']")
+
+                    if len(show_more_replies) > 0:
+                        show_more_replies_btn = show_more_replies[0]
+                        await show_more_replies_btn.scroll_into_view()
+                        sleep(delay()+1)
+                        await show_more_replies_btn.click()
+                        sleep(delay()+2)
+                        await slow_croll(tab, delay)
+                        sleep(delay()+5)
                     else:
                         break
 
-                replies = comment.find_elements(By.XPATH, './/*[@id="replies"]//*[@id="expander-contents"]//ytd-comment-view-model')
+                replies = await comment.query_selector_all('div[id="expander"] div[id="expander-contents"] #body')
 
                 for reply in replies:
 
-                    driver.execute_script("arguments[0].scrollIntoView();", reply) # Slow scroll replies
+                    await reply.scroll_into_view() # Slow scroll replies
+                    sleep(delay()+5)
 
-                    text = parse_comment_text(driver,reply)
-                    text = style_reply_mention(text)
+                    text, styled_text = await parse_comment_text(reply)
+                    styled_text = style_reply_mention(styled_text)
 
-                    html_reply = HTMLParser(reply.get_attribute("innerHTML"))
+                    # reply_inner_html = await reply.evaluate("(element) => element.innerHTML") ###
+                    reply_html = await reply.get_html()
+
+                    html_reply = HTMLParser(reply_html)
                     like_count,channel_username,comment_date,channel_url,channel_pfp = parse_comments(html_reply)
 
                     # Add heart icon if present
@@ -241,7 +292,7 @@ def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,c
                         heart = ""
 
                     # Add reply
-                    reply_box = youtube_html_elements.reply_box(channel_url,channel_pfp,channel_username,comment_date,text,like_count,heart)
+                    reply_box = youtube_html_elements.reply_box(channel_url,channel_pfp,channel_username,comment_date,styled_text,like_count,heart)
                     output.write(reply_box)
 
                     # Save reply metadata to comment dict
@@ -259,8 +310,11 @@ def add_comments(driver:webdriver.Chrome,html_output_dir:str,profile_image:str,c
 
             comments_list.append(comment_dict)
 
-        save_comments_to_json_file(f"youtube_downloads/{html_output_dir}/comments.json",comments_list)
+        if test_code == True:
+            save_comments_to_json_file(f"{output_directory}/comments.json",comments_list)
+        else:
+            save_comments_to_json_file(f"{output_directory}/{html_output_dir}/comments.json",comments_list)
 
-    except NoSuchElementException as e:
+    except Exception as e:
         print(f"No Such Element...{e}")
         pass
