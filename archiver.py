@@ -88,13 +88,10 @@ async def archiver(yt_urls:list,test_code:bool=False,test_comments:int=None):
 
 if __name__ == '__main__':
 
-    test_code = False
-    test_comments = 1000
+    from test_code import test_code, test_comments, test_yt_urls
 
     if test_code:
-        yt_urls = [
-
-            ]
+        yt_urls = test_yt_urls
     else:
         yt_urls = input_youtube_links()
 

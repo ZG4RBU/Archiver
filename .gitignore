@@ -1,8 +1,9 @@
 # Virtual Environment
 venv/
 
-# Output files
+# Others
 youtube_downloads*/
+test_code.py
 
 # Editor Configurations
 .vscode/

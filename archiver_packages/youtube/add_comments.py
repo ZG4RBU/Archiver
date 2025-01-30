@@ -91,10 +91,11 @@ def style_reply_mention(input_text:str) -> str:
         words = input_text.split(' ', 1)
 
         if len(words) > 1: # Check if there is more than one word to ensure that we have an actual mention instead of a one-word reply that starts with the '@' symbol
-            first_word, remaining_text = words
+            mention, remaining_text = words
+            mention = mention.strip()
 
             # Apply style to the mention
-            input_text = youtube_html_elements.mention(first_word)
+            input_text = youtube_html_elements.mention(mention)
             input_text = f"{input_text} {remaining_text}"
 
     return input_text
