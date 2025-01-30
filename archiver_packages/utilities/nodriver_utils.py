@@ -29,7 +29,7 @@ async def nodriver_setup(profile:str):
     return driver
 
 
-async def page_scroll(tab,delay:Callable[[int],float],add_delay:int=0) -> str|None:
+async def page_scroll(tab,delay:Callable[[int],float],add_delay:int=0,end_key:bool=False) -> str|None:
     '''Scroll the webpage. return str if reached to the bottom'''
 
     # Get old scroll position
@@ -38,14 +38,17 @@ async def page_scroll(tab,delay:Callable[[int],float],add_delay:int=0) -> str|No
     # Wait and scroll
     sleep(delay()+5+add_delay)
 
-    await tab.evaluate("""
-        var scrollingElement = document.scrollingElement || document.body;
-        scrollingElement.scrollTop = scrollingElement.scrollHeight;
-    """)
+    if end_key:
+        await send_key(tab, "End", 35)
+    else:
+        await tab.evaluate("""
+            var scrollingElement = document.scrollingElement || document.body;
+            scrollingElement.scrollTop = scrollingElement.scrollHeight;
+        """)
 
-    # Scroll down the page by a random amount
-    scroll_amount = random.uniform(5, 100)
-    await tab.evaluate(f"window.scrollBy(0, {scroll_amount});")
+    # # Scroll down the page by a random amount
+    # scroll_amount = random.uniform(5, 100)
+    # await tab.evaluate(f"window.scrollBy(0, {scroll_amount});")
 
     # Get the new scroll height
     new_height = await tab.evaluate("document.body.scrollHeight")
@@ -57,7 +60,7 @@ async def page_scroll(tab,delay:Callable[[int],float],add_delay:int=0) -> str|No
     last_height = new_height
 
 
-async def page_scroll_to_bottom(tab,delay:Callable[[int],float],max_page_end_count:int=5,page_scroll_limit:int=None):
+async def page_scroll_to_bottom(tab,delay:Callable[[int],float],max_page_end_count:int=5,page_scroll_limit:int=None,end_key:bool=False):
     """ Scroll to the bottom of the page. """
 
     page_end_count = 0
@@ -70,7 +73,7 @@ async def page_scroll_to_bottom(tab,delay:Callable[[int],float],max_page_end_cou
             if page_scroll_count == page_scroll_limit:
                 break
 
-        if await page_scroll(tab,delay) == "page_end":
+        if await page_scroll(tab,delay,end_key=end_key) == "page_end":
             page_end_count += 1
             if page_end_count > max_page_end_count:
                 break
@@ -78,7 +81,7 @@ async def page_scroll_to_bottom(tab,delay:Callable[[int],float],max_page_end_cou
             page_end_count = 0
 
 
-async def scroll_until_elements_loaded(tab,number_of_elements:int,number_of_page_results:int,delay:Callable[[int],float]):
+async def scroll_until_elements_loaded(tab,number_of_elements:int,number_of_page_results:int,delay:Callable[[int],float],extra_scrolls:int=5):
     """
     Scrolls to the bottom of the page until the desired number of button elements are displayed.
 
@@ -95,7 +98,7 @@ async def scroll_until_elements_loaded(tab,number_of_elements:int,number_of_page
     scroll_count = max(1, (number_of_elements + number_of_page_results - 1) // number_of_page_results)
 
     # Add extra page scrolls
-    scroll_count = scroll_count + 3
+    scroll_count = scroll_count + extra_scrolls
 
     for _ in range(scroll_count):
         await send_key(tab, "End", 35)

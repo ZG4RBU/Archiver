@@ -1,6 +1,9 @@
 # Virtual Environment
 venv/
 
+# Output files
+youtube_downloads*/
+
 # Editor Configurations
 .vscode/
 .idea/

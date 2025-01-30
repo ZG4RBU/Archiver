@@ -9,13 +9,16 @@ from archiver_packages.youtube.youtube_to_html import parse_to_html
 
 
 
-async def archiver(yt_urls:list,test_code:bool=False):
+async def archiver(yt_urls:list,test_code:bool=False,test_comments:int=None):
 
     # Load settings
     settings: dict = json.loads(open('settings.json', encoding="utf-8").read())
 
     save_comments = settings.get("youtube").get("save_comments")
-    max_comments = settings.get("youtube").get("max_comments")
+    if test_code and test_comments is not None:
+        max_comments = test_comments
+    else:
+        max_comments = settings.get("youtube").get("max_comments")
     delay = settings.get("extra").get("delay")
     delay = random_delay(delay)
     # headless = settings.get("extra").get("headless")
@@ -85,7 +88,8 @@ async def archiver(yt_urls:list,test_code:bool=False):
 
 if __name__ == '__main__':
 
-    test_code = False
+    test_code = True
+    test_comments = 1000
 
     if test_code:
         yt_urls = [
@@ -95,5 +99,9 @@ if __name__ == '__main__':
         yt_urls = input_youtube_links()
 
     uc.loop().run_until_complete(
-        archiver(yt_urls,test_code=test_code)
+        archiver(
+            yt_urls,
+            test_code=test_code,
+            test_comments=test_comments
+        )
     )

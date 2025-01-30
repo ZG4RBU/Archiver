@@ -21,8 +21,6 @@ def modify_exctracted_info(yt_url:str,video_publish_date:str,channel_keywords:li
     channel_keywords = ['#'+i for i in channel_keywords]
     channel_keywords = ' '.join(channel_keywords)
 
-    print(channel_description)
-
     # Make description link-clickable
     channel_description = re.sub(r'http\S+', '<a href="' + "\\g<0>" + '">' + "\\g<0>" + '</a>', channel_description) ###
 

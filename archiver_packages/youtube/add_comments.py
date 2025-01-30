@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from time import sleep
 import json
 from archiver_packages.utilities.selenium_utils import slow_croll
-from archiver_packages.utilities.nodriver_utils import page_scroll, scroll_until_elements_loaded
+from archiver_packages.utilities.nodriver_utils import page_scroll, scroll_until_elements_loaded, activate_dialog_window
 from archiver_packages.youtube.extract_comment_emoji import convert_youtube_emoji_url_to_emoji
 import archiver_packages.youtube_html_elements as youtube_html_elements
 from typing import Callable
@@ -120,12 +120,20 @@ def parse_comments(html:HTMLParser):
 async def load_all_comments(tab,delay:Callable[[int],float],max_comments:int,comment_count:int):
     """ Scroll to end of the page to load all comments. """
 
-    # await scroll_until_elements_loaded(
-    #     tab=tab,
-    #     number_of_elements=comment_count,
-    #     number_of_page_results=20,
-    #     delay=delay
-    #     )
+    # Click on button to activate End key scroll
+    sleep(delay()+2)
+    activate_btn = await tab.select("#owner-sub-count")
+    await activate_dialog_window(activate_btn,delay)
+    sleep(delay()+2)
+
+    # Scroll to the bottom of the page to load all comments
+    await scroll_until_elements_loaded(
+        tab=tab,
+        number_of_elements=comment_count,
+        number_of_page_results=20,
+        delay=delay,
+        extra_scrolls=5,
+        )
 
     # Scroll to the bottom of the page
     page_end_count = 0
@@ -134,6 +142,9 @@ async def load_all_comments(tab,delay:Callable[[int],float],max_comments:int,com
             page_end_count += 1
             if page_end_count > 3:
                 break
+            if page_end_count > 2:
+                sleep(delay()+1)
+                await slow_croll(tab,delay) # Scroll to description section and wait for comments to load
         else:
             page_end_count = 0
 
@@ -273,12 +284,11 @@ async def add_comments(tab,output_directory:str,html_output_dir:str,profile_imag
                 for reply in replies:
 
                     await reply.scroll_into_view() # Slow scroll replies
-                    sleep(delay()+5)
+                    sleep(delay())
 
                     text, styled_text = await parse_comment_text(reply)
                     styled_text = style_reply_mention(styled_text)
 
-                    # reply_inner_html = await reply.evaluate("(element) => element.innerHTML") ###
                     reply_html = await reply.get_html()
 
                     html_reply = HTMLParser(reply_html)
