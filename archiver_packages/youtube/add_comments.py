@@ -284,7 +284,7 @@ async def add_comments(tab,output_directory:str,html_output_dir:str,profile_imag
                 for reply in replies:
 
                     await reply.scroll_into_view() # Slow scroll replies
-                    sleep(delay())
+                    sleep(delay()+1)
 
                     text, styled_text = await parse_comment_text(reply)
                     styled_text = style_reply_mention(styled_text)
