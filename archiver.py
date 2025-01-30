@@ -88,7 +88,7 @@ async def archiver(yt_urls:list,test_code:bool=False,test_comments:int=None):
 
 if __name__ == '__main__':
 
-    test_code = True
+    test_code = False
     test_comments = 1000
 
     if test_code:
